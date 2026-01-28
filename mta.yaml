@@ -1,0 +1,24 @@
+ID: here-api-backend
+version: 1.0.0
+_schema-version: '3.1'
+description: here api maps
+
+modules:
+  - name: here-api-map-srv
+    type: nodejs
+    path: srv
+    provides:
+      - name: srv_api
+        properties:
+          url: ${default-url}
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production
+
+resources:
+  []
