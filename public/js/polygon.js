@@ -229,10 +229,10 @@ export function selectClientsInPolygon(state) {
   let selectedCount = 0;
   const polygon = state.currentPolygon.getGeometry().getExterior();
 
-  document.querySelectorAll('.client-checkbox').forEach(cb => {
+  /* document.querySelectorAll('.client-checkbox').forEach(cb => {
     cb.checked = false;
     cb.closest('.client-item').classList.remove('selected');
-  });
+  }); */
 
   state.allCustomers.forEach(customer => {
     const point = { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure };

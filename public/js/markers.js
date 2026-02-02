@@ -1,7 +1,8 @@
 // public/js/markers.js
 export function addMarker(state, coords, color, title, customerID) {
+
   const marker = new H.map.Marker(coords, {
-    icon: new H.map.Icon(`https://maps.google.com/mapfiles/ms/icons/${color}-dot.png`)
+    icon: new H.map.Icon(`/public/images/dot-${color}.svg`, { anchor: { x: 8, y: 8 } }), size: { w: 32, h: 32 } 
   });
   marker.setData(title);
   marker.addEventListener("tap", evt => {

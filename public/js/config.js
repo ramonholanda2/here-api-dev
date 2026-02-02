@@ -2,10 +2,12 @@
 export const apiKey = 'cn1jsr6t-Av8fGyDYWosAqeKHK7HsEAMCVG5PWs0ILQ';
 
 export const statusColors = {
-  verde: "green",
-  vermelho: "red",
-  azul: "ltblue",
-  cinza: "gray"
+  "101": "green",
+  "111": "yellow",
+  "121": "orange",
+  "131": "gray",
+  "141": "black",
+  "151": "purple"
 };
 
 export const state = {
