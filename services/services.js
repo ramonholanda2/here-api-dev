@@ -29,20 +29,13 @@ async function getEmployeeInfo(employeeID) {
 }
 
 
-// Helpers simples (mantém seu padrão atual)
 const AUTH_HEADER = {
   'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg=='
 };
 
-// Ajuste aqui se o campo do seu serviço custom tiver outro nome
 const SALES_ARRANGEMENT_ORGUNIT_FIELD = 'OrganisationalUnitID';
 
-/**
- * Orquestra:
- *  1) employee -> BusinessPartnerID
- *  2) busca OU assignments por BusinessPartnerID
- *  3) busca SalesArrangement por todos os OU IDs
- */
+
 async function getCustomers(queryOptions) {
   try {
 
@@ -97,7 +90,9 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
     .map(id => `SalesOfficeID eq '${String(id).replace(/'/g, "''")}'`)
     .join(' or ');
 
-  const url = `${base}?$format=json&$filter=${encodeURI(filterOrgQuery)}`;
+  const url = `${base}?$expand=CustomerPostalAddress&$format=json&$filter=${encodeURI(filterOrgQuery)}`;
+
+  console.log(url);
 
   try {
     const resp = await axios.get(url, { headers: AUTH_HEADER });
@@ -132,9 +127,35 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
   }
 }
 
+async function createRoute(routeBody){
+   const URL = `https://${ENV.SALES_CLOUD_ENV}.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi/RouteCollection`;
+
+    const csrfResp = await axios.get(URL + "?$top=1", {
+      headers: {
+        'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',
+        "x-csrf-token": "fetch"
+      }
+    });
+
+    const csrfToken = csrfResp.headers['x-csrf-token'];
+    const cookies = csrfResp.headers['set-cookie'];
+
+    const responseCreateRoute = await axios.post(URL, routeBody, {
+      headers: {
+        'Content-Type': "application/json",
+        'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',
+        'x-csrf-token': csrfToken,
+        'Cookie': cookies?.join('; ')
+      }
+    });
+    const routeCreated = responseCreateRoute?.data?.d?.results
+    console.log(routeCreated)
+    return routeCreated;
+}
 
  
 export {
     getEmployeeInfo,
-    getCustomers
+    getCustomers,
+    createRoute
 }

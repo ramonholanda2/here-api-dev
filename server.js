@@ -4,7 +4,7 @@ const app = express();
 const PORT = process.env.PORT || 8180;
 const axios = require('axios')
 const cors = require('cors');
-const { getCustomers, getEmployeeInfo } = require('./services/services');
+const { getCustomers, getEmployeeInfo, createRoute } = require('./services/services');
 require('dotenv').config();
 
 
@@ -23,28 +23,8 @@ console.log(ENV.NODE_ENV);
 
 app.post('/api/rotas', async (req, res, next) => {
   try {
-    const URL = `https://${ENV.SALES_CLOUD_ENV}.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi/RouteCollection`;
-
-    const csrfResp = await axios.get(URL + "?$top=1", {
-      headers: {
-        'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',
-        "x-csrf-token": "fetch"
-      }
-    });
-
-    const csrfToken = csrfResp.headers['x-csrf-token'];
-    const cookies = csrfResp.headers['set-cookie'];
-
-    await axios.post(URL, req.body, {
-      headers: {
-        'Content-Type': "application/json",
-        'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',
-        'x-csrf-token': csrfToken,
-        'Cookie': cookies?.join('; ')
-      }
-    });
-
-    return res.status(201).json({ sucesso: true });
+    const routeCreated = await createRoute(req.body);
+    return res.status(201).json(routeCreated);
 
   } catch (err) {
     next(err);
@@ -56,7 +36,6 @@ app.get('/api/clientes', async (req, res, next) => {
   try { 
 
     var customers = await getCustomers(req.query);
-
     return res.json(customers);
 
   } catch (error) {

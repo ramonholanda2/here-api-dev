@@ -1,1002 +1,236 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Meus clientes sem visitas planejadas - SAP Fiori</title>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-    <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
-    <link rel="stylesheet" type="text/css" href="/public/styles.css" />
-</head>
+  <meta charset="UTF-8" />
+  <title>Meus clientes sem visitas planejadas - SAP Fiori</title>
 
+  <!-- HERE Maps -->
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+  <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css"/>
+
+  <!-- Axios (global) -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Seu CSS -->
+  <link rel="stylesheet" type="text/css" href="/public/styles.css" />
+</head>
 <body>
 
-    <div class="container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="header-icon">📋</div>
-                <div class="header-title">Meus clientes sem visitas planejadas</div>
-                <div class="header-info">Mostrando 1 - 9</div>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="header-icon">📋</div>
+        <div class="header-title">Meus clientes sem visitas planejadas</div>
+        <div class="header-info">Mostrando 1 - 9</div>
+      </div>
+
+      <!-- ======= Filtros ======= -->
+      <form id="filtersPanel" class="filters-panel" method="GET" action="">
+        <div id="filtersFields" class="collapsible">
+          <div class="filters-grid">
+           <!--  <div class="filter-field">
+              <label for="f_employee">Employee ID</label>
+              <input type="text" id="f_employee" name="employeeID" readonly />
+            </div> -->
+
+            <div class="filter-field">
+              <label for="f_nome">Nome do cliente</label>
+              <input type="text" id="f_nome" name="nome" placeholder="Ex.: Cooperativa" autocomplete="on" />
             </div>
-            <!-- ======= Filtros (HTML apenas) ======= -->
 
-
-            <form id="filtersPanel" class="filters-panel" method="GET" action="">
-                <!-- Campo necessário para preservar employeeID sem templating/JS -->
-                <div id="filtersFields" class="collapsible">
-                    <div class="filters-grid">
-                        <div class="filter-field">
-                            <label for="f_employee">Employee ID</label>
-                            <input type="text" id="f_employee" name="employeeID" readonly />
-
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_nome">Nome do cliente</label>
-                            <input type="text" id="f_nome" name="nome" placeholder="Ex.: Cooperativa"
-                                autocomplete="on" />
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_status">Status do cliente</label>
-                            <select id="f_status" name="statusCliente">
-                                <option value="">(todos)</option>
-                                <option value="Crescendo">Crescendo</option>
-                                <option value="Estável">Estável</option>
-                                <option value="Queda">Queda</option>
-                                <option value="Inativo">Inativo</option>
-                                <option value="Sem variação">Sem variação</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_estado">Estado</label>
-                            <input type="text" id="f_estado" name="estado" placeholder="Ex.: PR" maxlength="2"
-                                autocapitalize="characters" />
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_cidade">Cidade</label>
-                            <input type="text" id="f_cidade" name="cidade" placeholder="Ex.: Curitiba"
-                                autocomplete="on" />
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_cnpj">CNPJ</label>
-                            <input type="text" id="f_cnpj" name="cnpj" placeholder="Ex.: 12.345.678/0001-90"
-                                inputmode="numeric" autocomplete="on" />
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_idsap">ID SAP</label>
-                            <input type="text" id="f_idsap" name="idSap" placeholder="Ex.: 10001234"
-                                autocomplete="on" />
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_regiao">Região (escritório de vendas)</label>
-                            <input type="text" id="f_regiao" name="regiao" placeholder="Ex.: Sul" autocomplete="on" />
-                        </div>
-
-                        <div class="filter-field">
-                            <label for="f_equipe">Equipe de vendas</label>
-                            <input type="text" id="f_equipe" name="equipeVendas" placeholder="Ex.: Time A"
-                                autocomplete="on" />
-                        </div>
-
-                        <!-- Opcional: mantenho a cor do pin existente nos seus fluxos -->
-                        <div class="filter-field">
-                            <label for="f_pin">Cor do pin</label>
-                            <select id="f_pin" name="pin">
-                                <option value="">(manter padrão)</option>
-                                <option value="vermelho">Vermelho</option>
-                                <option value="verde">Verde</option>
-                                <option value="cinza">Cinza</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="filters-actions">
-                    <button type="submit" class="fiori-button primary">Aplicar filtros</button>
-                    <button id="toggleFiltersBtn" class="fiori-button" type="button" aria-expanded="true"
-                        aria-controls="filtersPanel" title="Mostrar ou ocultar filtros">
-                        ⬆️ Ocultar filtros
-                    </button>
-                </div>
-            </form>
-
-            <!-- ======= /Filtros ======= -->
-            ``
-            <div class="sidebar-content">
-                <div id="clientList" class="loading">Carregando clientes...</div>
+            <div class="filter-field">
+              <label for="f_status">Status do cliente</label>
+              <select id="f_status" name="statusCliente">
+                <option value="">Todos</option>
+                <option value="101">Engajado / Ativo</option>
+                <option value="111">Atenção moderada</option>
+                <option value="121">Risco de inatividade</option>
+                <option value="131">Inativo</option>
+                <option value="141">Bloqueado</option>
+                <option value="151">Bloq. Financeiro</option>
+              </select>
             </div>
-            <div class="pagination">
-                <div>Página 1 de 1</div>
-                <div class="pagination-controls">
-                    <button class="pagination-button" disabled>‹</button>
-                    <button class="pagination-button" disabled>›</button>
-                </div>
+
+            <div class="filter-field">
+              <label for="f_estado">Estado</label>
+              <input type="text" id="f_estado" name="estado" placeholder="Ex.: PR" maxlength="2" autocapitalize="characters" />
             </div>
+
+            <div class="filter-field">
+              <label for="f_cidade">Cidade</label>
+              <input type="text" id="f_cidade" name="cidade" placeholder="Ex.: Curitiba" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_cnpj">CNPJ</label>
+              <input type="text" id="f_cnpj" name="cnpj" placeholder="Ex.: 12.345.678/0001-90" inputmode="numeric" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_idsap">ID SAP</label>
+              <input type="text" id="f_idsap" name="idSap" placeholder="Ex.: 10001234" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_regiao">Região (escritório de vendas)</label>
+              <input type="text" id="f_regiao" name="regiao" placeholder="Ex.: Sul" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_equipe">Equipe de vendas</label>
+              <input type="text" id="f_equipe" name="equipeVendas" placeholder="Ex.: Time A" autocomplete="on" />
+            </div>
+
+           <!--  <div class="filter-field">
+              <label for="f_pin">Cor do pin</label>
+              <select id="f_pin" name="pin">
+                <option value="">(manter padrão)</option>
+                <option value="vermelho">Vermelho</option>
+                <option value="verde">Verde</option>
+                <option value="cinza">Cinza</option>
+              </select>
+            </div> -->
+          </div>
         </div>
 
-        <div id="mapContainer">
-            <div class="action-bar">
-                <button class="fiori-button" onclick="clearRoute()">
-                    ✕ Limpar Rota
-                </button>
-                <button class="fiori-button primary" onclick="optimizeRoute()">
-                    📍 Calcular Rota
-                </button>
-                <button class="fiori-button success" onclick="openFormRoute()">
-                    ➕ Criar Rota
-                </button>
-                <button class="fiori-button warning" onclick="enablePolygonSelection()">
-                    🔲 Selecionar Área
-                </button>
-            </div>
-
-            <div id="routeInfo" class="route-info">
-                <div class="route-info-title">
-                    🗺️ Informações da Rota Calculada
-                </div>
-                <div class="route-stats">
-                    <div class="route-stat">
-                        <div class="route-stat-label">Distância Total</div>
-                        <div class="route-stat-value" id="routeDistance">-- km</div>
-                    </div>
-                    <div class="route-stat">
-                        <div class="route-stat-label">Tempo Estimado</div>
-                        <div class="route-stat-value" id="routeDuration">-- min</div>
-                    </div>
-                    <div class="route-stat">
-                        <div class="route-stat-label">Clientes na Rota</div>
-                        <div class="route-stat-value" id="routeClients">--</div>
-                    </div>
-                </div>
-            </div>
+        <div class="filters-actions">
+          <button id="toggleFiltersBtn" class="fiori-button" type="button" aria-expanded="true"
+                  aria-controls="filtersPanel" title="Mostrar ou ocultar filtros">
+            ⬆️ Ocultar filtros
+          </button>
         </div>
+      </form>
+
+      <div class="sidebar-content">
+        <div id="clientList" class="loading">Carregando clientes...</div>
+      </div>
+
+      <div class="pagination">
+        <div>Página 1 de 1</div>
+        <div class="pagination-controls">
+          <button class="pagination-button" disabled>‹</button>
+          <button class="pagination-button" disabled>›</button>
+        </div>
+      </div>
     </div>
 
-    <div id="FormRoute" class="fiori-modal hidden">
+    <div id="mapContainer">
+      <div class="action-bar">
+        <button id="btnClearRoute" class="fiori-button">✕ Limpar Rota</button>
+        <button id="btnOptimizeRoute" class="fiori-button primary">📍 Calcular Rota</button>
+        <button id="btnOpenFormRoute" class="fiori-button success">➕ Criar Rota</button>
+        <button id="btnSelectArea" class="fiori-button warning">🔲 Selecionar Área</button>
+      </div>
 
-        <div class="fiori-modal-content improved-form">
-            <div class="modal-header">
-                <h2>Nova Rota</h2>
-                <button class="close-btn" onclick="closeFormRoute()">✕</button>
-            </div>
-
-            <div class="modal-section">
-
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Nome</label>
-                        <input type="text" id="routeName" placeholder="Ex: Rota Sul" />
-                    </div>
-
-                    <div class="form-field">
-                        <label>Tipo</label>
-                        <select disabled>
-                            <option>Rota</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Data início + Tipo visita -->
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Data de início</label>
-                        <input type="date" id="routeDate" />
-                    </div>
-
-                    <div class="form-field">
-                        <label>Tipo da visita</label>
-                        <select id="routeTypeVisit">
-                            <option value="">Selecione</option>
-                            <option>Visita Técnica</option>
-                            <option>Reunião Comercial</option>
-                            <option>Entrega</option>
-                        </select>
-                    </div>
-                </div>
-
-                <label class="section-label">Dias da semana</label>
-                <div class="weekdays-container">
-                    <label class="weekday-chip"><input type="checkbox">Segunda</label>
-                    <label class="weekday-chip"><input type="checkbox">Terça</label>
-                    <label class="weekday-chip"><input type="checkbox">Quarta</label>
-                    <label class="weekday-chip"><input type="checkbox">Quinta</label>
-                    <label class="weekday-chip"><input type="checkbox">Sexta</label>
-                    <label class="weekday-chip"><input type="checkbox">Sábado</label>
-                    <label class="weekday-chip"><input type="checkbox">Domingo</label>
-                </div>
-
-
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Organizador</label>
-                        <input id="routeOrganizer" value="" readonly />
-                    </div>
-                    <div class="form-field">
-                        <label>Proprietário</label>
-                        <input id="routeOwner" value="" readonly />
-                    </div>
-                </div>
-
-
-                <!-- Notas -->
-                <div class="form-field">
-                    <label>Notas</label>
-                    <textarea id="routeNotes" rows="3" placeholder="Observações..."></textarea>
-                </div>
-
-                <h3 class="section-title">Clientes selecionados</h3>
-
-                <table class="fiori-table improved-table" id="tableCustomers">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Endereço</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-
-                <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeFormRoute()">Cancelar</button>
-                    <button class="btn-primary" onclick="saveRoute()">Salvar</button>
-                </div>
-            </div>
+      <div id="routeInfo" class="route-info">
+        <div class="route-info-title">🗺️ Informações da Rota Calculada</div>
+        <div class="route-stats">
+          <div class="route-stat">
+            <div class="route-stat-label">Distância Total</div>
+            <div class="route-stat-value" id="routeDistance">-- km</div>
+          </div>
+          <div class="route-stat">
+            <div class="route-stat-label">Tempo Estimado</div>
+            <div class="route-stat-value" id="routeDuration">-- min</div>
+          </div>
+          <div class="route-stat">
+            <div class="route-stat-label">Clientes na Rota</div>
+            <div class="route-stat-value" id="routeClients">--</div>
+          </div>
         </div>
-
+      </div>
     </div>
-
-    <script>
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const params = new URLSearchParams(window.location.search);
-            const employeeID = params.get("employeeID");
-
-            if (employeeID) {
-                const inputEmployee = document.getElementById("f_employee");
-                if (inputEmployee) {
-                    inputEmployee.value = employeeID;
-                }
-            }
-        });
-
-
-
-        const apiKey = 'cn1jsr6t-Av8fGyDYWosAqeKHK7HsEAMCVG5PWs0ILQ';
-
-
-        const statusColors = {
-            verde: "green",
-            vermelho: "red",
-            azul: "ltblue",
-            cinza: 'gray'
-        };
-
-        let allCustomers = [];
-        let map, platform, ui, router, markers = [];
-        let routeLine, currentRoute;
-
-        async function loadCustomers() {
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const employeeID = urlParams.get('employeeID');
-                console.log(employeeID);
-
-                const response = await axios.get(`/api/clientes?${urlParams.toString()}`);
-                allCustomers = response.data;
-                console.log(response.data);
-                initApp();
-            } catch (err) {
-                console.error('Erro ao carregar clientes:', err);
-                document.getElementById("clientList").innerText = "Erro ao carregar clientes.";
-            }
-        }
-
-        loadCustomers();
-
-        function initApp() {
-            const clientList = document.getElementById("clientList");
-            clientList.innerHTML = "";
-
-            const loadingElement = document.querySelector('.loading');
-            if (loadingElement) loadingElement.classList.remove('loading');
-
-            platform = new H.service.Platform({ apikey: apiKey });
-            const defaultLayers = platform.createDefaultLayers();
-
-            map = new H.Map(
-                document.getElementById("mapContainer"),
-                defaultLayers.vector.normal.map,
-                {
-                    center: { lat: -24.5, lng: -52 },
-                    zoom: 5,
-                    pixelRatio: window.devicePixelRatio || 1
-                }
-            );
-
-            window.addEventListener("resize", () => map.getViewPort().resize());
-            new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-            ui = H.ui.UI.createDefault(map, defaultLayers);
-
-
-            ui.removeControl('mapsettings');
-
-            const ms = new H.ui.MapSettingsControl({
-                baseLayers: [
-                    { label: 'normal', layer: defaultLayers.vector.normal.map },
-                    { label: 'satellite', layer: defaultLayers.raster.satellite.map },
-                    { label: 'terrain', layer: defaultLayers.raster.terrain.map }
-                ],
-                layers: [] // sem overlays extras
-            });
-            ui.addControl('customized', ms);
-
-
-            router = platform.getRoutingService(null, 8);
-
-            /* if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        addMarker({ lat: position.coords.latitude, lng: position.coords.longitude }, "green", "ramon");
-                    },
-                    error => alert("Erro ao obter localização: " + error.message)
-                );
-            } */
-
-            renderCustomerList();
-        }
-
-        // ---------------------- markers ----------------------
-        function addMarker(coords, color, title) {
-            const marker = new H.map.Marker(coords, {
-                icon: new H.map.Icon(`https://maps.google.com/mapfiles/ms/icons/${color}-dot.png`)
-            });
-            marker.setData(title);
-            marker.addEventListener("tap", evt => {
-                const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-                    content: `<div style="font-family: '72', Arial; padding: 0.5rem;">
-                        <strong>${evt.target.getData()}</strong>
-                    </div>`
-                });
-                ui.addBubble(bubble);
-            });
-            map.addObject(marker);
-            markers.push(marker);
-        }
-
-        // ---------------------- list customers ----------------------
-        function renderCustomerList() {
-            const clientList = document.getElementById("clientList");
-            const gridContainer = document.createElement("div");
-            gridContainer.className = "clients-grid";
-
-            allCustomers.forEach((customer, index) => {
-                const color = statusColors[customer.status] || "red";
-                addMarker({ lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, color, customer.CustomerName);
-
-                const item = document.createElement("div");
-                item.className = "client-item";
-
-                const header = document.createElement("div");
-                header.className = "client-header";
-
-                const number = document.createElement("div");
-                number.className = "client-number";
-                number.textContent = `${index + 1}.`;
-
-                const name = document.createElement("div");
-                name.className = "client-name";
-                name.textContent = customer.CustomerName;
-
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.className = "client-checkbox";
-                checkbox.dataset.id = customer.CustomerInternalID;
-
-                const statusDot = document.createElement("div");
-                statusDot.className = `client-status status-${customer.status}`;
-
-                const address = document.createElement("div");
-                address.className = "client-address";
-                address.textContent = customer.FormattedPostalAddressDescription;
-
-                checkbox.addEventListener("change", (e) => {
-                    item.classList.toggle('selected', e.target.checked);
-                    const selected = getSelectedClients();
-                    if (selected.length >= 2) {
-                        drawRoute(selected);
-                    } else if (routeLine) {
-                        clearRoute();
-                    }
-                });
-
-                item.addEventListener('click', (e) => {
-                    if (e.target !== checkbox) checkbox.click();
-                });
-
-                header.appendChild(number);
-                header.appendChild(name);
-                header.appendChild(checkbox);
-                item.appendChild(header);
-                item.appendChild(address);
-                item.appendChild(statusDot);
-                gridContainer.appendChild(item);
-            });
-
-            clientList.appendChild(gridContainer);
-        }
-
-        function getSelectedClients() {
-            const checkboxes = document.querySelectorAll('.client-checkbox');
-            return Array.from(checkboxes)
-                .filter(cb => cb.checked)
-                .map(cb => allCustomers.find(c => c.CustomerInternalID == cb.dataset.CustomerInternalID));
-        }
-
-        // ---------------------- route ----------------------
-        function drawRoute(waypoints) {
-            if (routeLine) {
-                map.removeObject(routeLine);
-                routeLine = null;
-            }
-
-            const routingParams = {
-                transportMode: 'car',
-                origin: `${waypoints[0].latitude},${waypoints[0].longitude}`,
-                destination: `${waypoints.at(-1).latitude},${waypoints.at(-1).longitude}`,
-                return: 'polyline,summary,actions,instructions',
-            };
-
-            if (waypoints.length > 2) {
-                routingParams.via = waypoints.slice(1, -1).map(p => `${p.latitude},${p.longitude}`);
-            }
-
-            router.calculateRoute(routingParams, result => {
-                if (result.routes.length) {
-                    const route = result.routes[0];
-                    currentRoute = route;
-                    const linestring = H.geo.LineString.fromFlexiblePolyline(route.sections[0].polyline);
-
-                    routeLine = new H.map.Polyline(linestring, {
-                        style: { strokeColor: '#0a6ed1', lineWidth: 4 }
-                    });
-
-                    map.addObject(routeLine);
-                    map.getViewModel().setLookAtData({ bounds: routeLine.getBoundingBox() });
-
-                    updateRouteInfo(route, waypoints.length);
-                }
-            }, error => {
-                console.error("Erro ao calcular rota:", error);
-            });
-        }
-
-        function updateRouteInfo(route, clientCount) {
-            const routeInfo = document.getElementById('routeInfo');
-            const distance = Math.round(route.sections[0].summary.length / 1000);
-            const duration = Math.round(route.sections[0].summary.duration / 60);
-
-            document.getElementById('routeDistance').textContent = `${distance}`;
-            document.getElementById('routeDuration').textContent = `${duration}`;
-            document.getElementById('routeClients').textContent = `${clientCount}`;
-            routeInfo.classList.add('visible');
-        }
-
-        function clearRoute() {
-            if (routeLine) {
-                map.removeObject(routeLine);
-                routeLine = null;
-                currentRoute = null;
-            }
-
-            document.querySelectorAll('.client-checkbox').forEach(cb => cb.checked = false);
-            document.querySelectorAll('.client-item').forEach(item => item.classList.remove('selected'));
-            document.getElementById('routeInfo').classList.remove('visible');
-        }
-
-        function optimizeRoute() {
-            const selected = getSelectedClients();
-            if (selected.length >= 2) {
-                drawRoute(selected);
-            } else {
-                alert('Selecione pelo menos 2 clientes para calcular a rota.');
-            }
-        }
-
-
-
-        // ---------------------- form route ----------------------
-        async function openFormRoute() {
-            const customers = getSelectedClients();
-            if (customers.length === 0) {
-                alert("Selecione pelo menos um cliente para criar a rota.");
-                return;
-            }
-
-            document.getElementById("FormRoute").classList.remove("hidden");
-
-            const params = new URLSearchParams(window.location.search);
-            console.log(params);
-            const employeeID = params.get("employeeID");
-
-            const { data } = await axios.get(`/api/empregado?employeeID=${employeeID}`)
-
-            const organizerInput = document.getElementById('routeOrganizer');
-            const ownerInput = document.getElementById('routeOwner');
-            if (!organizerInput || !ownerInput) return;
-
-            if (data.name) {
-                organizerInput.value = data.name || '';
-                ownerInput.value = data.name || '';
-            } else {
-                organizerInput.value = '';
-                ownerInput.value = '';
-            }
-
-            const tbody = document.querySelector("#tableCustomers tbody");
-            tbody.innerHTML = "";
-
-            customers.forEach(customer => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `<td>${customer.CustomerInternalID}</td><td>${customer.CustomerName}</td><td>${customer.FormattedPostalAddressDescription}</td>`;
-                tbody.appendChild(tr);
-            });
-
-
-        }
-
-        function closeFormRoute() {
-            document.getElementById("FormRoute").classList.add("hidden");
-        }
-
-        async function saveRoute() {
-            const nameRoute = document.getElementById('routeName').value.trim();
-            const initialDate = document.getElementById('routeDate').value;
-            const notes = document.getElementById('routeNotes').value.trim();
-
-            const daysWeekCheckboxes = document.querySelectorAll('.days-week input[type="checkbox"]');
-            const daysSelected = Array.from(daysWeekCheckboxes)
-                .map((checkbox, index) => checkbox.checked ? getNameDay(index) : null)
-                .filter(Boolean);
-
-            function getNameDay(index) {
-                const days = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
-                return days[index];
-            }
-
-            const selectedCustomers = getSelectedClients();
-            const timestampMs = new Date(initialDate).getTime();
-            const startDateFormatted = `/Date(${timestampMs})/`;
-
-            const daysWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            const excludeDays = {};
-            daysWeek.forEach((day, index) => {
-                excludeDays[`Exclude${day}Indicator`] = !daysSelected.includes(getNameDay(index));
-            });
-
-            const routeAccounts = selectedCustomers.map(customer => ({
-                AccountID: customer.CustomerInternalID,
-                Duration: "PT1H",
-                StartTime: "PT08H00M00S",
-                EndTime: "PT09H00M00S",
-                PreparationTime: "PT1H"
-            }));
-
-            const payload = {
-                Name: nameRoute || "Nova Rota",
-                RouteTypeCode: "2",
-                StartDate: startDateFormatted,
-                ...excludeDays,
-                DefaultStartTime: "PT08H00M00S",
-                DefaultPreparationTime: "PT1H",
-                DefaultDuration: "PT1H",
-                Status: "2",
-                ProcessingStatus: "1",
-                OwnerPartyID: "8000000002",
-                RouteAccount: routeAccounts
-            };
-
-            try {
-                await axios.post('/api/rotas', payload).then(res => alert("Rota salva com sucesso!")).catch(err => {
-                    alert("Erro ao salvar rota.")
-                    console.log(err.response.data );
-
-                });
-                closeFormRoute();
-                clearFormRoute();
-                clearRoute();
-            } catch (err) {
-                console.error(err);
-                alert("Erro ao salvar rota.");
-            }
-        }
-
-        function clearFormRoute() {
-            document.getElementById('routeName').value = '';
-            document.getElementById('routeDate').value = '';
-            document.getElementById('routeTypeVisit').value = '';
-            document.getElementById('routeNotes').value = '';
-
-            document.querySelectorAll('.days-week input[type="checkbox"]').forEach(cb => cb.checked = false);
-            document.querySelector('#tableCustomers tbody').innerHTML = '';
-        }
-
-
-        let polygonSelectionMode = false;
-        let currentPolygon = null;
-        let polygonGroup = null;
-        let trianglePoints = [];
-
-        function enablePolygonSelection() {
-            if (polygonSelectionMode) {
-                disablePolygonSelection();
-                return;
-            }
-
-            polygonSelectionMode = true;
-
-            document.getElementById('mapContainer').style.cursor = 'crosshair';
-
-            const button = document.querySelector('button[onclick="enablePolygonSelection()"]');
-            button.innerHTML = '🔲 Cancelar Seleção';
-            button.classList.add('active');
-
-            map.addEventListener('tap', onMapClick);
-
-            showPolygonInstructions();
-        }
-
-        function disablePolygonSelection() {
-            polygonSelectionMode = false;
-            trianglePoints = [];
-
-            document.getElementById('mapContainer').style.cursor = 'default';
-
-            const button = document.querySelector('button[onclick="enablePolygonSelection()"]');
-            button.innerHTML = '🔲 Selecionar Área';
-            button.classList.remove('active');
-
-            map.removeEventListener('tap', onMapClick);
-
-            hidePolygonInstructions();
-        }
-
-        function onMapClick(evt) {
-            if (!polygonSelectionMode) return;
-
-            evt.stopPropagation();
-
-            if (currentPolygon) return;
-
-            const coord = map.screenToGeo(
-                evt.currentPointer.viewportX,
-                evt.currentPointer.viewportY
-            );
-
-            createInitialTriangle(coord);
-
-            disablePolygonSelection();
-
-            setTimeout(() => {
-                showPolygonActions();
-            }, 300);
-        }
-
-        function createInitialTriangle(centerPoint) {
-            const zoomLevel = map.getZoom();
-            const triangleSize = Math.max(0.01, 1 / Math.pow(2, zoomLevel - 5));
-
-            const point1 = {
-                lat: centerPoint.lat + triangleSize,
-                lng: centerPoint.lng
-            };
-            const point2 = {
-                lat: centerPoint.lat - triangleSize / 2,
-                lng: centerPoint.lng - triangleSize * Math.cos(Math.PI / 6)
-            };
-            const point3 = {
-                lat: centerPoint.lat - triangleSize / 2,
-                lng: centerPoint.lng + triangleSize * Math.cos(Math.PI / 6)
-            };
-
-            trianglePoints = [point1, point2, point3];
-
-            createResizableTriangle();
-        }
-
-        function createResizableTriangle() {
-            const lineString = new H.geo.LineString();
-            trianglePoints.forEach(point => {
-                lineString.pushPoint(point);
-            });
-            lineString.pushPoint(trianglePoints[0]);
-
-            currentPolygon = new H.map.Polygon(
-                new H.geo.Polygon(lineString),
-                {
-                    style: {
-                        fillColor: 'rgba(0, 100, 200, 0.3)',
-                        strokeColor: 'rgba(0, 100, 200, 0.8)',
-                        lineWidth: 5
-                    }
-                }
-            );
-
-            const verticeGroup = createVerticeGroup();
-
-            polygonGroup = new H.map.Group({
-                volatility: true,
-                objects: [currentPolygon, verticeGroup]
-            });
-
-            currentPolygon.draggable = true;
-
-            map.addObject(polygonGroup);
-
-            setupPolygonEvents(polygonGroup, verticeGroup);
-
-            verticeGroup.setVisibility(true);
-
-            map.getViewModel().setLookAtData({ bounds: currentPolygon.getBoundingBox() });
-        }
-
-        function createVerticeGroup() {
-            const svgCircle = `<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="6" fill="red" stroke="white" stroke-width="2"/>
-    </svg>`;
-
-            const verticeGroup = new H.map.Group({
-                visibility: false
-            });
-
-            trianglePoints.forEach((point, index) => {
-                const vertice = new H.map.Marker(point, {
-                    icon: new H.map.Icon(svgCircle, { anchor: { x: 8, y: 8 } })
-                });
-
-                vertice.draggable = true;
-                vertice.setData({ verticeIndex: index });
-                verticeGroup.addObject(vertice);
-            });
-
-            return verticeGroup;
-        }
-
-        function setupPolygonEvents(mainGroup, verticeGroup) {
-            let polygonTimeout;
-
-            mainGroup.addEventListener('pointerenter', function (evt) {
-                if (polygonTimeout) {
-                    clearTimeout(polygonTimeout);
-                    polygonTimeout = null;
-                }
-                verticeGroup.setVisibility(true);
-                document.body.style.cursor = 'move';
-            }, true);
-
-            mainGroup.addEventListener('pointerleave', function (evt) {
-                const timeout = evt.currentPointer.type == 'touch' ? 1000 : 200;
-                polygonTimeout = setTimeout(() => {
-                    verticeGroup.setVisibility(false);
-                    document.body.style.cursor = 'default';
-                }, timeout);
-            }, true);
-
-            verticeGroup.addEventListener('pointerenter', function (evt) {
-                document.body.style.cursor = 'pointer';
-                if (polygonTimeout) {
-                    clearTimeout(polygonTimeout);
-                    polygonTimeout = null;
-                }
-            }, true);
-
-            verticeGroup.addEventListener('pointerleave', function (evt) {
-                document.body.style.cursor = 'default';
-            }, true);
-
-            verticeGroup.addEventListener('drag', function (evt) {
-                const pointer = evt.currentPointer;
-                const geoLineString = currentPolygon.getGeometry().getExterior();
-                const geoPoint = map.screenToGeo(pointer.viewportX, pointer.viewportY);
-
-                evt.target.setGeometry(geoPoint);
-
-                const verticeIndex = evt.target.getData().verticeIndex;
-
-                trianglePoints[verticeIndex] = geoPoint;
-
-                geoLineString.removePoint(verticeIndex);
-                geoLineString.insertPoint(verticeIndex, geoPoint);
-
-                if (verticeIndex === 0) {
-                    geoLineString.removePoint(trianglePoints.length);
-                    geoLineString.insertPoint(trianglePoints.length, geoPoint);
-                }
-
-                currentPolygon.setGeometry(new H.geo.Polygon(geoLineString));
-
-                evt.stopPropagation();
-            }, true);
-        }
-
-        function showPolygonInstructions() {
-            const instructionDiv = document.createElement('div');
-            instructionDiv.id = 'polygonInstructions';
-            instructionDiv.className = 'polygon-instructions';
-            instructionDiv.innerHTML = `
-        <div class="instruction-content">
-            <h4>🔲 Seleção de Área</h4>
-            <p>Clique no mapa para criar um triângulo.</p>
-            <p>Depois arraste os vértices para redimensionar.</p>
-            <div class="instruction-buttons">
-                <button class="fiori-button" onclick="clearPolygonSelection()">🗑️ Cancelar</button>
-            </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="FormRoute" class="fiori-modal hidden">
+    <div class="fiori-modal-content improved-form">
+      <div class="modal-header">
+        <h2>Nova Rota</h2>
+        <button class="close-btn" id="btnCloseForm">✕</button>
+      </div>
+
+      <div class="modal-section">
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Nome</label>
+            <input type="text" id="routeName" placeholder="Ex: Rota Sul" />
+          </div>
+
+          <div class="form-field">
+            <label>Tipo</label>
+            <select disabled>
+              <option>Rota</option>
+            </select>
+          </div>
         </div>
-    `;
 
-            document.body.appendChild(instructionDiv);
-        }
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Data de início</label>
+            <input type="date" id="routeDate" />
+          </div>
 
-        function hidePolygonInstructions() {
-            const instructionDiv = document.getElementById('polygonInstructions');
-            if (instructionDiv) {
-                instructionDiv.remove();
-            }
-        }
-
-        function showPolygonActions() {
-            const actionDiv = document.createElement('div');
-            actionDiv.id = 'polygonActions';
-            actionDiv.className = 'polygon-actions';
-            actionDiv.innerHTML = `
-        <div class="action-content">
-            <h4>🔺 Área Triangular Selecionada</h4>
-            <div class="action-buttons">
-                <button class="fiori-button primary" onclick="selectClientsInPolygon()">
-                    👥 Selecionar Clientes na Área
-                </button>
-                <button class="fiori-button" onclick="clearPolygonSelection()">
-                    🗑️ Remover Área
-                </button>
-            </div>
+          <div class="form-field">
+            <label>Tipo da visita</label>
+            <select id="routeTypeVisit">
+              <option value="">Selecione</option>
+              <option>Visita Técnica</option>
+              <option>Reunião Comercial</option>
+              <option>Entrega</option>
+            </select>
+          </div>
         </div>
-    `;
 
-            document.body.appendChild(actionDiv);
-        }
+        <!-- <label class="section-label">Dias da semana</label>
+        <div class="weekdays-container days-week">
+          <label class="weekday-chip"><input type="checkbox">Segunda</label>
+          <label class="weekday-chip"><input type="checkbox">Terça</label>
+          <label class="weekday-chip"><input type="checkbox">Quarta</label>
+          <label class="weekday-chip"><input type="checkbox">Quinta</label>
+          <label class="weekday-chip"><input type="checkbox">Sexta</label>
+          <label class="weekday-chip"><input type="checkbox">Sábado</label>
+          <label class="weekday-chip"><input type="checkbox">Domingo</label>
+        </div> -->
 
-        function clearPolygonSelection() {
-            if (polygonGroup) {
-                map.removeObject(polygonGroup);
-                polygonGroup = null;
-                currentPolygon = null;
-            }
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Organizador</label>
+            <input id="routeOrganizer" value="" readonly />
+          </div>
+          <div class="form-field">
+            <label>Proprietário</label>
+            <input id="routeOwner" value="" readonly />
+          </div>
+        </div>
 
-            trianglePoints = [];
+        <div class="form-field">
+          <label>Notas</label>
+          <textarea id="routeNotes" rows="3" placeholder="Observações..."></textarea>
+        </div>
 
-            hidePolygonInstructions();
-            hidePolygonActions();
-            clearRoute();
+        <h3 class="section-title">Clientes selecionados</h3>
+        <table class="fiori-table improved-table" id="tableCustomers">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Endereço</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
 
-            disablePolygonSelection();
-        }
-
-        function hidePolygonActions() {
-            const actionDiv = document.getElementById('polygonActions');
-            if (actionDiv) {
-                actionDiv.remove();
-            }
-        }
-
-        function selectClientsInPolygon() {
-            if (!currentPolygon) {
-                alert('Nenhuma área selecionada.');
-                return;
-            }
-
-            let selectedCount = 0;
-            const polygon = currentPolygon.getGeometry().getExterior();
-
-            document.querySelectorAll('.client-checkbox').forEach(cb => {
-                cb.checked = false;
-                cb.closest('.client-item').classList.remove('selected');
-            });
-
-            allCustomers.forEach((customer, index) => {
-                const point = { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure };
-
-                if (isPointInPolygon(point, polygon)) {
-                    const checkbox = document.querySelector(`.client-checkbox[data-id="${customer.CustomerInternalID}"]`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        checkbox.closest('.client-item').classList.add('selected');
-                        selectedCount++;
-                    }
-                }
-            });
-
-            if (selectedCount > 0) {
-                alert(`${selectedCount} cliente(s) selecionado(s) na área triangular.`);
-
-                const selected = getSelectedClients();
-                if (selected.length >= 2) {
-                    drawRoute(selected);
-                }
-            } else {
-                alert('Nenhum cliente encontrado na área selecionada.');
-            }
-        }
-
-        function isPointInPolygon(point, polygon) {
-            const vertices = [];
-
-            polygon.eachLatLngAlt((lat, lng) => {
-                vertices.push({ lat, lng });
-            });
-
-            if (vertices.length > 0 &&
-                vertices[0].lat === vertices[vertices.length - 1].lat &&
-                vertices[0].lng === vertices[vertices.length - 1].lng) {
-                vertices.pop();
-            }
-
-            let inside = false;
-
-            for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-                if (((vertices[i].lat > point.lat) !== (vertices[j].lat > point.lat)) &&
-                    (point.lng < (vertices[j].lng - vertices[i].lng) * (point.lat - vertices[i].lat) / (vertices[j].lat - vertices[i].lat) + vertices[i].lng)) {
-                    inside = !inside;
-                }
-            }
-
-            return inside;
-        }
-
-
-        (function () {
-            const STORAGE_KEY = 'filtersCollapsed_v1';
-            const btn = document.getElementById('toggleFiltersBtn');
-            const fields = document.getElementById('filtersFields');
-
-            if (!btn || !fields) return;
-
-            // Aplica estado inicial do localStorage
-            const collapsedInit = localStorage.getItem(STORAGE_KEY) === 'true';
-            applyState(collapsedInit);
-
-            // Click → alterna
-            btn.addEventListener('click', () => {
-                const willCollapse = !fields.classList.contains('is-collapsed');
-                applyState(willCollapse);
-                localStorage.setItem(STORAGE_KEY, String(willCollapse));
-            });
-
-            function applyState(collapsed) {
-                if (collapsed) {
-                    fields.classList.add('is-collapsed');
-                    btn.setAttribute('aria-expanded', 'false');
-                    btn.innerText = '⬇️ Mostrar filtros';
-                } else {
-                    fields.classList.remove('is-collapsed');
-                    btn.setAttribute('aria-expanded', 'true');
-                    btn.innerText = '⬆️ Ocultar filtros';
-                }
-            }
-        })();
-
-
-    </script>
-
+        <div class="modal-footer">
+          <button class="btn-secondary" id="btnCancelForm">Cancelar</button>
+          <button class="btn-primary" id="btnSaveForm">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/public/js/main.js"></script>
 </body>
-
 </html>
