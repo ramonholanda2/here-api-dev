@@ -1,7 +1,7 @@
 // public/js/filters.js
 import { state } from './config.js';
 import { renderCustomerList } from './list.js';
-import { clearMarkers } from './markers.js';
+import { clearMarkers, updateMarkerVisibility } from './markers.js';
 
 const LS_KEY = 'clientes_filtros_v1';
 
@@ -138,6 +138,8 @@ export function applyFiltersAndRender() {
   const filtered = filterCustomers(state.allCustomers, filters);
   const filteredIds = new Set(filtered.map(c => String(c.CustomerInternalID)));
 
+  updateMarkerVisibility(state, filtered);
+
   // mostrar/esconder itens existentes sem recriar DOM
   document.querySelectorAll('.client-item').forEach(item => {
     const checkbox = item.querySelector('.client-checkbox');
@@ -154,6 +156,7 @@ export function applyFiltersAndRender() {
   const info = document.querySelector('.header-info');
   if (info) info.textContent = `Mostrando ${filtered.length} de ${state.allCustomers.length}`;
 }
+
 
 
 export function renderCustomers() {

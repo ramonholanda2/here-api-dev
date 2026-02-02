@@ -13,7 +13,7 @@ export function addMarker(state, coords, color, title, customerID) {
     state.ui.addBubble(bubble);
   });
   state.map.addObject(marker);
-  state.markers.push(marker);
+  state.markers.push({ customerID, marker: marker });
 }
 
 export function clearMarkers(state) {
@@ -21,4 +21,14 @@ export function clearMarkers(state) {
     state.markers.forEach(m => state.map.removeObject(m));
   }
   state.markers = [];
+}
+
+
+export function updateMarkerVisibility(state, filteredCustomers) {
+  const visibleIds = new Set(filteredCustomers.map(customer => customer.CustomerInternalID));
+  
+  state.markers.forEach((markerObj) => {
+    const shouldShow = visibleIds.has(markerObj.customerID);
+    markerObj.marker.setVisibility(shouldShow);
+  });
 }
