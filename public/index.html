@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <title>Meus clientes sem visitas planejadas - SAP Fiori</title>
@@ -9,7 +10,7 @@
   <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-  <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css"/>
+  <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
 
   <!-- Axios (global) -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -17,6 +18,7 @@
   <!-- Seu CSS -->
   <link rel="stylesheet" type="text/css" href="/public/styles.css" />
 </head>
+
 <body>
 
   <div class="container">
@@ -31,7 +33,7 @@
       <form id="filtersPanel" class="filters-panel" method="GET" action="">
         <div id="filtersFields" class="collapsible">
           <div class="filters-grid">
-           <!--  <div class="filter-field">
+            <!--  <div class="filter-field">
               <label for="f_employee">Employee ID</label>
               <input type="text" id="f_employee" name="employeeID" readonly />
             </div> -->
@@ -56,7 +58,8 @@
 
             <div class="filter-field">
               <label for="f_estado">Estado</label>
-              <input type="text" id="f_estado" name="estado" placeholder="Ex.: PR" maxlength="2" autocapitalize="characters" />
+              <input type="text" id="f_estado" name="estado" placeholder="Ex.: PR" maxlength="2"
+                autocapitalize="characters" />
             </div>
 
             <div class="filter-field">
@@ -66,7 +69,8 @@
 
             <div class="filter-field">
               <label for="f_cnpj">CNPJ</label>
-              <input type="text" id="f_cnpj" name="cnpj" placeholder="Ex.: 12.345.678/0001-90" inputmode="numeric" autocomplete="on" />
+              <input type="text" id="f_cnpj" name="cnpj" placeholder="Ex.: 12.345.678/0001-90" inputmode="numeric"
+                autocomplete="on" />
             </div>
 
             <div class="filter-field">
@@ -84,7 +88,7 @@
               <input type="text" id="f_equipe" name="equipeVendas" placeholder="Ex.: Time A" autocomplete="on" />
             </div>
 
-           <!--  <div class="filter-field">
+            <!--  <div class="filter-field">
               <label for="f_pin">Cor do pin</label>
               <select id="f_pin" name="pin">
                 <option value="">(manter padrão)</option>
@@ -98,7 +102,7 @@
 
         <div class="filters-actions">
           <button id="toggleFiltersBtn" class="fiori-button" type="button" aria-expanded="true"
-                  aria-controls="filtersPanel" title="Mostrar ou ocultar filtros">
+            aria-controls="filtersPanel" title="Mostrar ou ocultar filtros">
             ⬆️ Ocultar filtros
           </button>
         </div>
@@ -119,10 +123,17 @@
 
     <div id="mapContainer">
       <div class="action-bar">
-        <button id="btnClearRoute" class="fiori-button">✕ Limpar Rota</button>
-        <button id="btnOptimizeRoute" class="fiori-button primary">📍 Calcular Rota</button>
+       <!--  <button id="btnClearRoute" class="fiori-button">✕ Limpar Rota</button>
+        <button id="btnOptimizeRoute" class="fiori-button primary">📍 Calcular Rota</button> -->
         <button id="btnOpenFormRoute" class="fiori-button success">➕ Criar Rota</button>
-        <button id="btnSelectArea" class="fiori-button warning">🔲 Selecionar Área</button>
+        <button id="btnSelectShape" class="fiori-button warning">🧭 Selecionar forma</button>
+        <div id="shapeMenu" class="shape-menu hidden" role="menu" aria-labelledby="btnSelectShape">
+          <button id="btnSelectArea" class="shape-option" data-shape="triangle" role="menuitem">🔺 Triângulo</button>
+          <button id="btnSelectCircle" class="shape-option" data-shape="circle" role="menuitem">⚪ Círculo</button>
+          <button id="btnSelectSquare" class="shape-option" data-shape="square" role="menuitem">⬛ Quadrado</button>
+        </div>
+
+
       </div>
 
       <div id="routeInfo" class="route-info">
@@ -233,4 +244,5 @@
   </div>
   <script type="module" src="/public/js/main.js"></script>
 </body>
+
 </html>

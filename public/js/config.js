@@ -21,9 +21,10 @@ export const state = {
   currentRoute: null,
   // Seleção poligonal
   polygonSelectionMode: false,
+  selectionShape: "",
   currentPolygon: null,
   polygonGroup: null,
-  trianglePoints: [],
+  polygonPoints: [],
   
   selectedCustomerIDs: new Set(),
 

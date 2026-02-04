@@ -18,9 +18,45 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCustomers();
 
   document.getElementById('btnClearRoute')?.addEventListener('click', () => clearRoute(state));
-  document.getElementById('btnOptimizeRoute')?.addEventListener('click', () => optimizeRoute(state));
+  //document.getElementById('btnOptimizeRoute')?.addEventListener('click', () => optimizeRoute(state));
   document.getElementById('btnOpenFormRoute')?.addEventListener('click', () => openFormRoute(state));
-  document.getElementById('btnSelectArea')?.addEventListener('click', () => enablePolygonSelection(state));
+  document.getElementById('btnSelectArea')?.addEventListener('click', () => enablePolygonSelection(state, 'triangle'));
+  document.getElementById('btnSelectCircle')?.addEventListener('click', () => enablePolygonSelection(state, 'circle'));
+  document.getElementById('btnSelectSquare')?.addEventListener('click', () => enablePolygonSelection(state, 'square'));
+
+  var toggleSelectArea = false;
+
+  const btnSelectShape = document.getElementById('btnSelectShape');
+  const shapeMenu = document.getElementById('shapeMenu');
+  const actionBar = document.querySelector('.action-bar');
+
+  btnSelectShape?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSelectArea = !toggleSelectArea;
+    toggleShapeMenu(btnSelectShape, shapeMenu, toggleSelectArea);
+  });
+
+  document.addEventListener('click', () => toggleShapeMenu(btnSelectShape, shapeMenu, false));
+
+  function toggleShapeMenu(anchorBtn, menuEl, show) {
+    if (!anchorBtn || !menuEl) return;
+    if (!show) {
+      menuEl.classList.add('hidden');
+      return;
+    }
+    const btnRect = anchorBtn.getBoundingClientRect();
+    const barRect = actionBar.getBoundingClientRect();
+
+    menuEl.style.top = `${(btnRect.bottom - barRect.top) + 8}px`;
+    menuEl.style.left = `${(btnRect.left - barRect.left)}px`;
+    menuEl.classList.remove('hidden');
+
+    // acessibilidade: foca o 1º item
+    menuEl.querySelector('.shape-option')?.focus();
+  }
+
+
+
 
   // Modal
   document.getElementById('btnSaveForm')?.addEventListener('click', () => saveRoute(state));
@@ -40,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // (Opcional) reatividade imediata ao digitar/alterar:
-  ['f_nome','f_status','f_estado','f_cidade','f_cnpj','f_idsap','f_regiao','f_equipe','f_pin']
+  ['f_nome', 'f_status', 'f_estado', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_regiao', 'f_equipe', 'f_pin']
     .forEach(id => {
       const el = document.getElementById(id);
       el?.addEventListener('change', applyFiltersAndRender);

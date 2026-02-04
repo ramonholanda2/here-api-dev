@@ -12,6 +12,33 @@ body {
     color: #32363a;
 }
 
+/* A action-bar como referência de posicionamento do menu */
+.action-bar { position: relative; }
+
+/* Menu pop leve */
+.shape-menu.hidden { display: none; }
+.shape-menu {
+  position: absolute;
+  z-index: 9999;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  border-radius: 6px;
+  padding: 6px;
+  min-width: 180px;
+}
+.shape-menu .shape-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+.shape-menu .shape-option:hover { background: #f5f5f5; }
+
 .container {
     display: flex;
     height: 100vh;

@@ -58,7 +58,7 @@ export async function saveRoute(state) {
   const daysWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const excludeDays = {};
   daysWeek.forEach((day, index) => {
-    excludeDays[`Exclude${day}Indicator`] = !daysSelected.includes(getNameDay(index));
+    excludeDays[`Exclude${day}Indicator`] = daysSelected.includes(getNameDay(index));
   });
 
   const routeAccounts = selectedCustomers.map(customer => ({

@@ -2,7 +2,8 @@
 import { drawRoute, clearRoute } from './routing.js';
 import { getSelectedClients } from './customers.js';
 
-export function enablePolygonSelection(state) {
+export function enablePolygonSelection(state, mode) {
+  state.selectionShape = mode;
   if (state.polygonSelectionMode) {
     disablePolygonSelection(state);
     return;
@@ -42,9 +43,128 @@ export function onMapClick(state, evt) {
     evt.currentPointer.viewportY
   );
 
-  createInitialTriangle(state, coord);
+
+  if (state.selectionShape === 'circle') {
+    createInitialCircle(state, coord);
+  } else if (state.selectionShape === 'square') {
+    createInitialSquare(state, coord);
+  } else {
+    createInitialTriangle(state, coord);
+  }
   disablePolygonSelection(state);
   setTimeout(showPolygonActions, 300);
+}
+
+
+export function createInitialSquare(state, center) {
+  const zoom = state.map.getZoom();
+  const size = Math.max(0.01, 1 / Math.pow(2, zoom - 5));
+
+  const d = size;
+  const p1 = { lat: center.lat + d, lng: center.lng - d };
+  const p2 = { lat: center.lat + d, lng: center.lng + d };
+  const p3 = { lat: center.lat - d, lng: center.lng + d };
+  const p4 = { lat: center.lat - d, lng: center.lng - d };
+
+  state.trianglePoints = [p1, p2, p3, p4]; // ← usamos o mesmo array
+  createResizableTriangle(state); // ← reaproveita TODA sua infra (ok pois desenha lineString fechado)
+}
+
+export function createInitialCircle(state, center) {
+  const zoom = state.map.getZoom();
+  const radius = Math.max(0.01, 1 / Math.pow(2, zoom - 5));
+
+  state.circleCenter = { lat: center.lat, lng: center.lng };
+  state.circleRadius = radius;
+
+  // cria geometria inicial
+  const points = buildCirclePoints(state.circleCenter, state.circleRadius);
+  state.trianglePoints = points; // reaproveitamos a estrutura existente
+
+  createCirclePolygon(state);
+}
+
+function buildCirclePoints(center, radius, segments = 40) {
+  const pts = [];
+  for (let i = 0; i < segments; i++) {
+    const ang = (i / segments) * 2 * Math.PI;
+    pts.push({
+      lat: center.lat + radius * Math.sin(ang),
+      lng: center.lng + radius * Math.cos(ang)
+    });
+  }
+  pts.push(pts[0]); // fechar loop
+  return pts;
+}
+
+function createCirclePolygon(state) {
+  const ls = new H.geo.LineString();
+  state.trianglePoints.forEach(p => ls.pushPoint(p));
+
+  state.currentPolygon = new H.map.Polygon(new H.geo.Polygon(ls), {
+    style: {
+      fillColor: 'rgba(0,100,200,0.3)',
+      strokeColor: 'rgba(0,100,200,0.8)',
+      lineWidth: 5
+    }
+  });
+
+  state.polygonGroup = new H.map.Group({
+    volatility: true,
+    objects: [state.currentPolygon]
+  });
+
+  state.map.addObject(state.polygonGroup);
+
+  setupCircleResize(state);
+
+  state.map.getViewModel()
+    .setLookAtData({ bounds: state.currentPolygon.getBoundingBox() });
+}
+
+function setupCircleResize(state) {
+  cleanupCircleResize(state);
+
+  state._circleResizing = false;
+
+  state._circleDown = (evt) => {
+    state._circleResizing = true;
+    evt.stopPropagation();
+  };
+
+  state._circleMove = (evt) => {
+    if (!state._circleResizing) return;
+
+    const gp = state.map.screenToGeo(evt.currentPointer.viewportX, evt.currentPointer.viewportY);
+    const dx = gp.lng - state.circleCenter.lng;
+    const dy = gp.lat - state.circleCenter.lat;
+    const newRadius = Math.max(0.001, Math.sqrt(dx*dx + dy*dy));
+
+    state.circleRadius = newRadius;
+
+    const pts = buildCirclePoints(state.circleCenter, newRadius);
+    state.trianglePoints = pts;
+
+    const ls = new H.geo.LineString();
+    pts.forEach(p => ls.pushPoint(p));
+    state.currentPolygon.setGeometry(new H.geo.Polygon(ls));
+  };
+
+  state._circleUp = () => {
+    state._circleResizing = false;
+  };
+
+  state.currentPolygon.addEventListener('pointerdown', state._circleDown, true);
+  state.map.addEventListener('pointermove', state._circleMove, true);
+  state.map.addEventListener('pointerup', state._circleUp, true);
+}
+
+function cleanupCircleResize(state) {
+  if (state._circleDown) {
+    try { state.currentPolygon?.removeEventListener('pointerdown', state._circleDown, true); } catch {}
+    try { state.map?.removeEventListener('pointermove', state._circleMove, true); } catch {}
+    try { state.map?.removeEventListener('pointerup', state._circleUp, true); } catch {}
+  }
 }
 
 export function createInitialTriangle(state, centerPoint) {
@@ -93,6 +213,11 @@ export function createVerticeGroup(state) {
   </svg>`;
 
   const verticeGroup = new H.map.Group({ visibility: false });
+
+  
+ if (state.selectionShape === 'circle') {
+    return verticeGroup;
+  }
 
   state.trianglePoints.forEach((point, index) => {
     const vertice = new H.map.Marker(point, {
@@ -261,15 +386,15 @@ export function isPointInPolygon(point, polygon) {
 
   // Remove ponto repetido final == primeiro
   if (vertices.length > 0 &&
-      vertices[0].lat === vertices[vertices.length - 1].lat &&
-      vertices[0].lng === vertices[vertices.length - 1].lng) {
+    vertices[0].lat === vertices[vertices.length - 1].lat &&
+    vertices[0].lng === vertices[vertices.length - 1].lng) {
     vertices.pop();
   }
 
   let inside = false;
   for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
     if (((vertices[i].lat > point.lat) !== (vertices[j].lat > point.lat)) &&
-        (point.lng < (vertices[j].lng - vertices[i].lng) * (point.lat - vertices[i].lat) /
+      (point.lng < (vertices[j].lng - vertices[i].lng) * (point.lat - vertices[i].lat) /
         (vertices[j].lat - vertices[i].lat) + vertices[i].lng)) {
       inside = !inside;
     }
