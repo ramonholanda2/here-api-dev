@@ -66,7 +66,7 @@ export function clearRoute(state) {
 export function optimizeRoute(state) {
   const selected = getSelectedClients(state);
   if (selected.length >= 2) {
-    drawRoute(state, selected);
+    //drawRoute(state, selected);
   } else {
     alert('Selecione pelo menos 2 clientes para calcular a rota.');
   }

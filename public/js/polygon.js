@@ -16,16 +16,16 @@ export function enablePolygonSelection(state, mode) {
   btn.classList.add('active');
 
   state.map.addEventListener('tap', state._onMapClick || (state._onMapClick = evt => onMapClick(state, evt)));
-  showPolygonInstructions();
+  showPolygonInstructions(state.selectionShape);
 }
 
 export function disablePolygonSelection(state) {
   state.polygonSelectionMode = false;
-  state.trianglePoints = [];
+  state.polygonPoints = [];
   document.getElementById('mapContainer').style.cursor = 'default';
 
   const btn = document.getElementById('btnSelectArea');
-  btn.innerHTML = '🔲 Selecionar Área';
+  btn.innerHTML = '🔺 Triângulo';
   btn.classList.remove('active');
 
   if (state._onMapClick) {
@@ -66,8 +66,8 @@ export function createInitialSquare(state, center) {
   const p3 = { lat: center.lat - d, lng: center.lng + d };
   const p4 = { lat: center.lat - d, lng: center.lng - d };
 
-  state.trianglePoints = [p1, p2, p3, p4]; // ← usamos o mesmo array
-  createResizableTriangle(state); // ← reaproveita TODA sua infra (ok pois desenha lineString fechado)
+  state.polygonPoints = [p1, p2, p3, p4];
+  createResizablePolygon(state);
 }
 
 export function createInitialCircle(state, center) {
@@ -79,7 +79,7 @@ export function createInitialCircle(state, center) {
 
   // cria geometria inicial
   const points = buildCirclePoints(state.circleCenter, state.circleRadius);
-  state.trianglePoints = points; // reaproveitamos a estrutura existente
+  state.polygonPoints = points;
 
   createCirclePolygon(state);
 }
@@ -93,13 +93,13 @@ function buildCirclePoints(center, radius, segments = 40) {
       lng: center.lng + radius * Math.cos(ang)
     });
   }
-  pts.push(pts[0]); // fechar loop
+  pts.push(pts[0]);
   return pts;
 }
 
 function createCirclePolygon(state) {
   const ls = new H.geo.LineString();
-  state.trianglePoints.forEach(p => ls.pushPoint(p));
+  state.polygonPoints.forEach(p => ls.pushPoint(p));
 
   state.currentPolygon = new H.map.Polygon(new H.geo.Polygon(ls), {
     style: {
@@ -138,12 +138,12 @@ function setupCircleResize(state) {
     const gp = state.map.screenToGeo(evt.currentPointer.viewportX, evt.currentPointer.viewportY);
     const dx = gp.lng - state.circleCenter.lng;
     const dy = gp.lat - state.circleCenter.lat;
-    const newRadius = Math.max(0.001, Math.sqrt(dx*dx + dy*dy));
+    const newRadius = Math.max(0.001, Math.sqrt(dx * dx + dy * dy));
 
     state.circleRadius = newRadius;
 
     const pts = buildCirclePoints(state.circleCenter, newRadius);
-    state.trianglePoints = pts;
+    state.polygonPoints = pts;
 
     const ls = new H.geo.LineString();
     pts.forEach(p => ls.pushPoint(p));
@@ -161,9 +161,9 @@ function setupCircleResize(state) {
 
 function cleanupCircleResize(state) {
   if (state._circleDown) {
-    try { state.currentPolygon?.removeEventListener('pointerdown', state._circleDown, true); } catch {}
-    try { state.map?.removeEventListener('pointermove', state._circleMove, true); } catch {}
-    try { state.map?.removeEventListener('pointerup', state._circleUp, true); } catch {}
+    try { state.currentPolygon?.removeEventListener('pointerdown', state._circleDown, true); } catch { }
+    try { state.map?.removeEventListener('pointermove', state._circleMove, true); } catch { }
+    try { state.map?.removeEventListener('pointerup', state._circleUp, true); } catch { }
   }
 }
 
@@ -175,14 +175,14 @@ export function createInitialTriangle(state, centerPoint) {
   const point2 = { lat: centerPoint.lat - triangleSize / 2, lng: centerPoint.lng - triangleSize * Math.cos(Math.PI / 6) };
   const point3 = { lat: centerPoint.lat - triangleSize / 2, lng: centerPoint.lng + triangleSize * Math.cos(Math.PI / 6) };
 
-  state.trianglePoints = [point1, point2, point3];
-  createResizableTriangle(state);
+  state.polygonPoints = [point1, point2, point3];
+  createResizablePolygon(state);
 }
 
-export function createResizableTriangle(state) {
+export function createResizablePolygon(state) {
   const lineString = new H.geo.LineString();
-  state.trianglePoints.forEach(point => lineString.pushPoint(point));
-  lineString.pushPoint(state.trianglePoints[0]);
+  state.polygonPoints.forEach(point => lineString.pushPoint(point));
+  //lineString.pushPoint(state.polygonPoints[0]);
 
   state.currentPolygon = new H.map.Polygon(new H.geo.Polygon(lineString), {
     style: {
@@ -214,19 +214,23 @@ export function createVerticeGroup(state) {
 
   const verticeGroup = new H.map.Group({ visibility: false });
 
-  
- if (state.selectionShape === 'circle') {
+
+  if (state.selectionShape === 'circle') {
     return verticeGroup;
   }
 
-  state.trianglePoints.forEach((point, index) => {
-    const vertice = new H.map.Marker(point, {
+
+  const exterior = state.currentPolygon.getGeometry().getExterior();
+  exterior.eachLatLngAlt((lat, lng, alt, index) => {
+    const vertice = new H.map.Marker({ lat, lng }, {
       icon: new H.map.Icon(svgCircle, { anchor: { x: 8, y: 8 } })
     });
     vertice.draggable = true;
-    vertice.setData({ verticeIndex: index });
+    vertice.setData({ verticeIndex: index++ }); // índice correto do LineString
+    vertice.setZIndex(10000);                 // fica acima do fill
     verticeGroup.addObject(vertice);
   });
+
 
   return verticeGroup;
 }
@@ -238,14 +242,6 @@ export function setupPolygonEvents(state, mainGroup, verticeGroup) {
     if (polygonTimeout) { clearTimeout(polygonTimeout); polygonTimeout = null; }
     verticeGroup.setVisibility(true);
     document.body.style.cursor = 'move';
-  }, true);
-
-  mainGroup.addEventListener('pointerleave', function (evt) {
-    const timeout = evt.currentPointer.type == 'touch' ? 1000 : 200;
-    polygonTimeout = setTimeout(() => {
-      verticeGroup.setVisibility(false);
-      document.body.style.cursor = 'default';
-    }, timeout);
   }, true);
 
   verticeGroup.addEventListener('pointerenter', function () {
@@ -262,33 +258,39 @@ export function setupPolygonEvents(state, mainGroup, verticeGroup) {
     const geoLineString = state.currentPolygon.getGeometry().getExterior();
     const geoPoint = state.map.screenToGeo(pointer.viewportX, pointer.viewportY);
 
+    if (!isFinite(geoPoint.lat) || !isFinite(geoPoint.lng)) return;
+
     evt.target.setGeometry(geoPoint);
 
     const verticeIndex = evt.target.getData().verticeIndex;
-    state.trianglePoints[verticeIndex] = geoPoint;
+    console.log(verticeIndex)
+    console.log(state)
 
-    geoLineString.removePoint(verticeIndex);
-    geoLineString.insertPoint(verticeIndex, geoPoint);
 
-    if (verticeIndex === 0) {
-      geoLineString.removePoint(state.trianglePoints.length);
-      geoLineString.insertPoint(state.trianglePoints.length, geoPoint);
-    }
+    const exterior = state.currentPolygon.getGeometry().getExterior();
+    exterior.removePoint(verticeIndex);
+    exterior.insertPoint(verticeIndex, geoPoint);
+    state.currentPolygon.setGeometry(new H.geo.Polygon(exterior));
 
-    state.currentPolygon.setGeometry(new H.geo.Polygon(geoLineString));
     evt.stopPropagation();
+
   }, true);
 }
 
-export function showPolygonInstructions() {
+export function showPolygonInstructions(shape) {
+  const shapeFormat = {
+    circle: 'circulo',
+    rectangle: 'retangulo',
+    triangle: 'triângulo'
+  }
   const instructionDiv = document.createElement('div');
   instructionDiv.id = 'polygonInstructions';
   instructionDiv.className = 'polygon-instructions';
   instructionDiv.innerHTML = `
     <div class="instruction-content">
       <h4>🔲 Seleção de Área</h4>
-      <p>Clique no mapa para criar um triângulo.</p>
-      <p>Depois arraste os vértices para redimensionar.</p>
+      <p>Clique no mapa para criar um ${shapeFormat[shape]}.</p>
+      <p>${shape == 'circle' ?  "Depois clique com o botão direito para redimensionar." : "Depois arraste os vértices para redimensionar."}</p>
       <div class="instruction-buttons">
         <button class="fiori-button" id="btnCancelPolygon">🗑️ Cancelar</button>
       </div>
@@ -311,7 +313,7 @@ export function showPolygonActions() {
   actionDiv.className = 'polygon-actions';
   actionDiv.innerHTML = `
     <div class="action-content">
-      <h4>🔺 Área Triangular Selecionada</h4>
+      <h4>Área Selecionada</h4>
       <div class="action-buttons">
         <button class="fiori-button primary" id="btnSelectClientsInArea">👥 Selecionar Clientes na Área</button>
         <button class="fiori-button" id="btnRemoveArea">🗑️ Remover Área</button>
@@ -338,10 +340,10 @@ export function clearPolygonSelection(state) {
     state.polygonGroup = null;
     state.currentPolygon = null;
   }
-  state.trianglePoints = [];
+  state.polygonPoints = [];
   hidePolygonInstructions();
   hidePolygonActions();
-  clearRoute(state);
+  /*  clearRoute(state); */
   disablePolygonSelection(state);
 }
 
@@ -372,9 +374,9 @@ export function selectClientsInPolygon(state) {
   });
 
   if (selectedCount > 0) {
-    alert(`${selectedCount} cliente(s) selecionado(s) na área triangular.`);
+    alert(`${selectedCount} cliente(s) selecionado(s) na área.`);
     const selected = getSelectedClients(state);
-    if (selected.length >= 2) drawRoute(state, selected);
+    //if (selected.length >= 2) drawRoute(state, selected);
   } else {
     alert('Nenhum cliente encontrado na área selecionada.');
   }

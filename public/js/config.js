@@ -19,18 +19,13 @@ export const state = {
   markers: [],
   routeLine: null,
   currentRoute: null,
+
   // Seleção poligonal
   polygonSelectionMode: false,
   selectionShape: "",
   currentPolygon: null,
   polygonGroup: null,
   polygonPoints: [],
-  
-  selectedCustomerIDs: new Set(),
-
-  markerCustomerById  : new Map(),
-  markersGroup : null
-
 };
 
 export function hydrateEmployeeFieldFromQuery() {

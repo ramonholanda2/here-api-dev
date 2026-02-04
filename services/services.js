@@ -132,7 +132,7 @@ async function createRoute(routeBody){
 
     const csrfResp = await axios.get(URL + "?$top=1", {
       headers: {
-        'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',
+        ...AUTH_HEADER,
         "x-csrf-token": "fetch"
       }
     });
@@ -143,7 +143,7 @@ async function createRoute(routeBody){
     const responseCreateRoute = await axios.post(URL, routeBody, {
       headers: {
         'Content-Type': "application/json",
-        'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',
+        ...AUTH_HEADER,
         'x-csrf-token': csrfToken,
         'Cookie': cookies?.join('; ')
       }

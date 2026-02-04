@@ -6,7 +6,10 @@ import { openFormRoute, saveRoute, closeFormRoute, clearFormRoute } from './form
 import {
   enablePolygonSelection,
   clearPolygonSelection,
-  selectClientsInPolygon
+  selectClientsInPolygon,
+  hidePolygonActions,
+  hidePolygonInstructions
+
 } from './polygon.js';
 import { setupFiltersToggle } from './filters-toggle.js';
 import { applyFiltersAndRender } from './filters.js';
@@ -18,8 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCustomers();
 
   document.getElementById('btnClearRoute')?.addEventListener('click', () => clearRoute(state));
-  //document.getElementById('btnOptimizeRoute')?.addEventListener('click', () => optimizeRoute(state));
-  document.getElementById('btnOpenFormRoute')?.addEventListener('click', () => openFormRoute(state));
+  document.getElementById('btnOpenFormRoute')?.addEventListener('click', () => {
+    openFormRoute(state)
+    hidePolygonActions(); 
+    hidePolygonInstructions();
+
+  });
   document.getElementById('btnSelectArea')?.addEventListener('click', () => enablePolygonSelection(state, 'triangle'));
   document.getElementById('btnSelectCircle')?.addEventListener('click', () => enablePolygonSelection(state, 'circle'));
   document.getElementById('btnSelectSquare')?.addEventListener('click', () => enablePolygonSelection(state, 'square'));
