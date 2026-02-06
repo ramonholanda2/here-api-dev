@@ -52,7 +52,6 @@ export function updateRouteInfo(route, clientCount) {
 }
 
 export function clearRoute(state) {
-  console.log(state)
   if (state.routeLine) {
     state.map.removeObject(state.routeLine);
     state.routeLine = null;

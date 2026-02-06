@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meus clientes sem visitas planejadas - SAP Fiori</title>
 
   <!-- HERE Maps -->
@@ -25,8 +26,10 @@
     <div class="sidebar">
       <div class="sidebar-header">
         <div class="header-icon">📋</div>
-        <div class="header-title">Meus clientes sem visitas planejadas</div>
-        <div class="header-info">Mostrando 1 - 9</div>
+        <div class="header-content">
+          <div class="header-title">Meus clientes sem visitas planejadas</div>
+          <div class="header-info">Mostrando 1 - 9</div>
+        </div>
       </div>
 
       <!-- ======= Filtros ======= -->
@@ -112,18 +115,18 @@
         <div id="clientList" class="loading">Carregando clientes...</div>
       </div>
 
-      <div class="pagination">
+      <!--  <div class="pagination">
         <div>Página 1 de 1</div>
         <div class="pagination-controls">
           <button class="pagination-button" disabled>‹</button>
           <button class="pagination-button" disabled>›</button>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <div id="mapContainer">
       <div class="action-bar">
-       <!--  <button id="btnClearRoute" class="fiori-button">✕ Limpar Rota</button>
+        <!--  <button id="btnClearRoute" class="fiori-button">✕ Limpar Rota</button>
         <button id="btnOptimizeRoute" class="fiori-button primary">📍 Calcular Rota</button> -->
         <button id="btnOpenFormRoute" class="fiori-button success">➕ Criar Rota</button>
         <button id="btnSelectShape" class="fiori-button warning">🧭 Selecionar forma</button>
@@ -188,12 +191,19 @@
           <div class="form-field">
             <label>Tipo da visita</label>
             <select id="routeTypeVisit">
-              <option value="">Selecione</option>
-              <option>Visita Técnica</option>
-              <option>Reunião Comercial</option>
-              <option>Entrega</option>
+              <option value="" selected disabled hidden></option>
+              <option value="Z01">Visita de rotina</option>
+              <option value="Z02">Sábado Azul</option>
+              <option value="Z03">Prospecção de novo cliente</option>
+              <option value="Z04">Visita de reativação de cliente inativo</option>
+              <option value="Z05">Treinamento de produto</option>
+              <option value="Z06">Inauguração de loja</option>
+              <option value="Z07">Tratativa de reclamação</option>
+              <option value="Z08">Visitas Trade Marketing</option>
+              <option value="Z09">Visitas às Fábricas (Portas Abertas)</option>
             </select>
           </div>
+
         </div>
 
         <!-- <label class="section-label">Dias da semana</label>
@@ -224,16 +234,18 @@
         </div>
 
         <h3 class="section-title">Clientes selecionados</h3>
-        <table class="fiori-table improved-table" id="tableCustomers">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Endereço</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="fiori-table improved-table" id="tableCustomers">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Endereço</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
 
         <div class="modal-footer">
           <button class="btn-secondary" id="btnCancelForm">Cancelar</button>

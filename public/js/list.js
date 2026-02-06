@@ -40,7 +40,7 @@ export function renderCustomerList(state, customers) {
     checkbox.dataset.id = customer.CustomerInternalID;
 
     const statusDot = document.createElement("div");
-    statusDot.className = `client-status status-${customer.status}`;
+    statusDot.className = `client-status status-${color}`;
 
     const address = document.createElement("div");
     address.className = "client-address";

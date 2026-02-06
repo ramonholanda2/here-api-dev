@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 8180;
+const PORT = process.env.PORT || 8080;
 const axios = require('axios')
 const cors = require('cors');
 const { getCustomers, getEmployeeInfo, createRoute } = require('./services/services');
@@ -16,10 +16,6 @@ app.use("/public", cors(), express.static(path.join(__dirname, 'public')));
 app.get('/', cors(), (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-const ENV = process.env;
-console.log(ENV.NODE_ENV);
-
 
 app.post('/api/rotas', async (req, res, next) => {
   try {

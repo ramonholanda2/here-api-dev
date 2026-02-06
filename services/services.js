@@ -6,9 +6,7 @@ const ENV = process.env;
 
 async function getEmployeeInfo(employeeID) {
     try {
-        console.log(employeeID)
         const url = `https://${ENV.SALES_CLOUD_ENV}.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi/BusinessUserCollection?$filter=EmployeeID eq '${employeeID}'&$format=json`;
-        console.log(url)
         const response = await axios.get(url, {
             headers: {
                 'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',

@@ -9,10 +9,10 @@ import {
   selectClientsInPolygon,
   hidePolygonActions,
   hidePolygonInstructions
-
 } from './polygon.js';
 import { setupFiltersToggle } from './filters-toggle.js';
 import { applyFiltersAndRender } from './filters.js';
+import { validateRouteForm } from './route-form-validate.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   //hydrateEmployeeFieldFromQuery();
@@ -22,16 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btnClearRoute')?.addEventListener('click', () => clearRoute(state));
   document.getElementById('btnOpenFormRoute')?.addEventListener('click', () => {
-    openFormRoute(state)
-    hidePolygonActions(); 
+    openFormRoute(state);
+    hidePolygonActions();
     hidePolygonInstructions();
-
   });
+
   document.getElementById('btnSelectArea')?.addEventListener('click', () => enablePolygonSelection(state, 'triangle'));
   document.getElementById('btnSelectCircle')?.addEventListener('click', () => enablePolygonSelection(state, 'circle'));
   document.getElementById('btnSelectSquare')?.addEventListener('click', () => enablePolygonSelection(state, 'square'));
 
-  var toggleSelectArea = false;
+  let toggleSelectArea = false;
 
   const btnSelectShape = document.getElementById('btnSelectShape');
   const shapeMenu = document.getElementById('shapeMenu');
@@ -58,31 +58,42 @@ document.addEventListener('DOMContentLoaded', () => {
     menuEl.style.left = `${(btnRect.left - barRect.left)}px`;
     menuEl.classList.remove('hidden');
 
-    // acessibilidade: foca o 1º item
     menuEl.querySelector('.shape-option')?.focus();
   }
 
+  const btnSaveForm = document.getElementById('btnSaveForm');
+  btnSaveForm?.addEventListener('click', (e) => {
+    const { valid, errors } = validateRouteForm();
+    if (!valid) {
+      e.preventDefault();
+      alert(errors.join('\n'));
+      return;
+    }
+
+    btnSaveForm.disabled = true;
+
+    saveRoute(state);
+
+    setTimeout(() => {
+      btnSaveForm.disabled = false;
+    }, 1500);
 
 
+  });
 
-  // Modal
-  document.getElementById('btnSaveForm')?.addEventListener('click', () => saveRoute(state));
   const cancel = () => { closeFormRoute(); clearFormRoute(); };
   document.getElementById('btnCancelForm')?.addEventListener('click', cancel);
   document.getElementById('btnCloseForm')?.addEventListener('click', cancel);
 
-  // Eventos custom do polígono
   document.addEventListener('polygon:clear', () => clearPolygonSelection(state));
   document.addEventListener('polygon:selectClients', () => selectClientsInPolygon(state));
 
-  // 👉 Filtros: evita submit e aplica em memória
   const form = document.getElementById('filtersPanel');
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
     applyFiltersAndRender(); // lê UI, salva local, filtra e renderiza
   });
 
-  // (Opcional) reatividade imediata ao digitar/alterar:
   ['f_nome', 'f_status', 'f_estado', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_regiao', 'f_equipe', 'f_pin']
     .forEach(id => {
       const el = document.getElementById(id);

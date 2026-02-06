@@ -25,6 +25,7 @@ export function clearMarkers(state) {
 }
 
 
+
 export function updateMarkerVisibility(state, filteredCustomers) {
   const visibleIds = new Set(filteredCustomers.map(customer => customer.CustomerInternalID));
   

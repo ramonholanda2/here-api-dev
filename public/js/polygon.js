@@ -1,6 +1,7 @@
 // js/polygon.js
 import { drawRoute, clearRoute } from './routing.js';
 import { getSelectedClients } from './customers.js';
+import { getCustomersFiltered } from './filters.js';
 
 export function enablePolygonSelection(state, mode) {
   state.selectionShape = mode;
@@ -57,8 +58,10 @@ export function onMapClick(state, evt) {
 
 
 export function createInitialSquare(state, center) {
-  const zoom = state.map.getZoom();
-  const size = Math.max(0.01, 1 / Math.pow(2, zoom - 5));
+  /* const zoom = state.map.getZoom();
+  const size = Math.max(0.01, 1 / Math.pow(2, zoom - 5)); */
+
+  const size = 0.006;
 
   const d = size;
   const p1 = { lat: center.lat + d, lng: center.lng - d };
@@ -71,8 +74,10 @@ export function createInitialSquare(state, center) {
 }
 
 export function createInitialCircle(state, center) {
-  const zoom = state.map.getZoom();
-  const radius = Math.max(0.01, 1 / Math.pow(2, zoom - 5));
+  /* const zoom = state.map.getZoom();
+  const radius = Math.max(0.01, 1 / Math.pow(2, zoom - 5)); */
+
+  const radius = 0.006;
 
   state.circleCenter = { lat: center.lat, lng: center.lng };
   state.circleRadius = radius;
@@ -146,7 +151,7 @@ function setupCircleResize(state) {
     state.polygonPoints = pts;
 
     const ls = new H.geo.LineString();
-    pts.forEach(p => ls.pushPoint(p));
+    pts.forEach(point => ls.pushPoint(point));
     state.currentPolygon.setGeometry(new H.geo.Polygon(ls));
   };
 
@@ -168,8 +173,16 @@ function cleanupCircleResize(state) {
 }
 
 export function createInitialTriangle(state, centerPoint) {
+
+  /* console.log("Center Point:", centerPoint);
+
   const zoomLevel = state.map.getZoom();
-  const triangleSize = Math.max(0.01, 1 / Math.pow(2, zoomLevel - 5));
+  console.log("Zoom Level:", zoomLevel);
+  const triangleSize = Math.max(0.01, 1 / Math.pow(5, zoomLevel - 2));
+
+  console.log("Triangle Size:", triangleSize); */
+
+  const triangleSize = 0.006;
 
   const point1 = { lat: centerPoint.lat + triangleSize, lng: centerPoint.lng };
   const point2 = { lat: centerPoint.lat - triangleSize / 2, lng: centerPoint.lng - triangleSize * Math.cos(Math.PI / 6) };
@@ -178,6 +191,7 @@ export function createInitialTriangle(state, centerPoint) {
   state.polygonPoints = [point1, point2, point3];
   createResizablePolygon(state);
 }
+
 
 export function createResizablePolygon(state) {
   const lineString = new H.geo.LineString();
@@ -226,8 +240,8 @@ export function createVerticeGroup(state) {
       icon: new H.map.Icon(svgCircle, { anchor: { x: 8, y: 8 } })
     });
     vertice.draggable = true;
-    vertice.setData({ verticeIndex: index++ }); // índice correto do LineString
-    vertice.setZIndex(10000);                 // fica acima do fill
+    vertice.setData({ verticeIndex: index++ });
+    vertice.setZIndex(10000);
     verticeGroup.addObject(vertice);
   });
 
@@ -238,24 +252,27 @@ export function createVerticeGroup(state) {
 export function setupPolygonEvents(state, mainGroup, verticeGroup) {
   let polygonTimeout;
 
+  const mapElement = state.map.getElement();
+
   mainGroup.addEventListener('pointerenter', function () {
     if (polygonTimeout) { clearTimeout(polygonTimeout); polygonTimeout = null; }
     verticeGroup.setVisibility(true);
-    document.body.style.cursor = 'move';
+    document.body.cursor = 'move';
   }, true);
 
   verticeGroup.addEventListener('pointerenter', function () {
-    document.body.style.cursor = 'pointer';
+
+    mapElement.style.cursor = 'pointer';
     if (polygonTimeout) { clearTimeout(polygonTimeout); polygonTimeout = null; }
   }, true);
 
   verticeGroup.addEventListener('pointerleave', function () {
-    document.body.style.cursor = 'default';
+    mapElement.style.cursor = 'default';
   }, true);
 
   verticeGroup.addEventListener('drag', function (evt) {
+    mapElement.style.cursor = 'grabbing';
     const pointer = evt.currentPointer;
-    const geoLineString = state.currentPolygon.getGeometry().getExterior();
     const geoPoint = state.map.screenToGeo(pointer.viewportX, pointer.viewportY);
 
     if (!isFinite(geoPoint.lat) || !isFinite(geoPoint.lng)) return;
@@ -263,8 +280,6 @@ export function setupPolygonEvents(state, mainGroup, verticeGroup) {
     evt.target.setGeometry(geoPoint);
 
     const verticeIndex = evt.target.getData().verticeIndex;
-    console.log(verticeIndex)
-    console.log(state)
 
 
     const exterior = state.currentPolygon.getGeometry().getExterior();
@@ -290,7 +305,7 @@ export function showPolygonInstructions(shape) {
     <div class="instruction-content">
       <h4>🔲 Seleção de Área</h4>
       <p>Clique no mapa para criar um ${shapeFormat[shape]}.</p>
-      <p>${shape == 'circle' ?  "Depois clique com o botão direito para redimensionar." : "Depois arraste os vértices para redimensionar."}</p>
+      <p>${shape == 'circle' ? "Depois clique com o botão direito para redimensionar." : "Depois arraste os vértices para redimensionar."}</p>
       <div class="instruction-buttons">
         <button class="fiori-button" id="btnCancelPolygon">🗑️ Cancelar</button>
       </div>
@@ -361,7 +376,9 @@ export function selectClientsInPolygon(state) {
     cb.closest('.client-item').classList.remove('selected');
   }); */
 
-  state.allCustomers.forEach(customer => {
+  var customersFiltered = getCustomersFiltered();
+
+  customersFiltered.forEach(customer => {
     const point = { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure };
     if (isPointInPolygon(point, polygon)) {
       const checkbox = document.querySelector(`.client-checkbox[data-id="${customer.CustomerInternalID}"]`);

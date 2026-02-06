@@ -60,7 +60,6 @@ export function filterCustomers(all, filters) {
     pin: norm(filters.pin),
   };
 
-  console.log('FILTROS', f);
 
   return all.filter(customer => {
     if (f.nome) {
@@ -129,6 +128,10 @@ export function filterCustomers(all, filters) {
 
 /** Aplica filtros atuais da UI, salva e re-renderiza */
 
+
+export function getCustomersFiltered() {
+  return filterCustomers(state.allCustomers, getFiltersFromUI());
+}
 
 export function applyFiltersAndRender() {
   const filters = getFiltersFromUI();

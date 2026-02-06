@@ -37,8 +37,13 @@ export function closeFormRoute() {
 }
 
 export async function saveRoute(state) {
+
+  
   const nameRoute = document.getElementById('routeName').value.trim();
   const initialDate = document.getElementById('routeDate').value;
+  const typeVisit = document.getElementById('routeTypeVisit')
+  const typeVisitDesc = typeVisit.options[typeVisit.selectedIndex].text;
+
   const notes = document.getElementById('routeNotes').value.trim();
 
   const daysWeekCheckboxes = document.querySelectorAll('.days-week input[type="checkbox"]');
@@ -71,7 +76,7 @@ export async function saveRoute(state) {
 
   const params = new URLSearchParams(window.location.search);
   const employeeID = params.get("employeeID");
-
+  
   const payload = {
     Name: nameRoute || "Nova Rota",
     RouteTypeCode: "2",
@@ -84,14 +89,15 @@ export async function saveRoute(state) {
     ProcessingStatus: "1",
     OwnerPartyID: employeeID,
     OrganizerPartyID: employeeID,
-    RouteAccount: routeAccounts
+    RouteAccount: routeAccounts,
+    Z_TipoVisita_KUT: `${typeVisit.value} - ${typeVisitDesc}`,
   };
 
   try {
     await axios.post('/api/rotas', payload)
       .then((route) => {
         alert("Rota salva com sucesso!")
-        window.open(`https://my367994.crm.ondemand.com/sap/byd/nav?bo=ROUTE_TT&nav_mode=TI&param.Key=${route.data.ObjectID}`, "_blank").focus();
+        window.open(`https://my367994.crm.ondemand.com/sap/byd/nav?bo=ROUTE_TT&nav_mode=TI&param.Key=${route.data.ObjectID}`, "_blank")?.focus();
       })
     closeFormRoute();
     clearFormRoute();
