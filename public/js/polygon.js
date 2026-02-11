@@ -295,7 +295,7 @@ export function setupPolygonEvents(state, mainGroup, verticeGroup) {
 export function showPolygonInstructions(shape) {
   const shapeFormat = {
     circle: 'circulo',
-    rectangle: 'retangulo',
+    square: 'retangulo',
     triangle: 'triângulo'
   }
   const instructionDiv = document.createElement('div');

@@ -13,7 +13,7 @@ const fieldMap = {
   cnpj: ['zCNPJ_KUT'],
   idSap: ['CustomerInternalID'],
   regiao: ['SalesOfficeName'],
-  equipeVendas: ['SalesGroup'],
+  equipeVendas: ['SalesGroupName'],
 };
 
 function norm(v) {

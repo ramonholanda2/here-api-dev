@@ -7,7 +7,6 @@ export async function loadCustomers() {
     const params = new URLSearchParams(window.location.search);
     const employeeID = params.get('employeeID');
 
-    // 👉 Se tiver employeeID na URL, usamos; senão, tentamos buscar tudo.
     const url = employeeID
       ? `/api/clientes?employeeID=${encodeURIComponent(employeeID)}`
       : `/api/clientes`;
@@ -15,7 +14,6 @@ export async function loadCustomers() {
     console.log('[loadCustomers] GET', url);
     const { data } = await axios.get(url);
 
-    // 👉 Seja tolerante ao formato (array direto, ou { results: [...] }, etc)
     const list =
       Array.isArray(data) ? data
       : Array.isArray(data?.results) ? data.results
