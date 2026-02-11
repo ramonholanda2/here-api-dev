@@ -91,7 +91,7 @@ export async function saveRoute(state) {
     DefaultPreparationTime: "PT1H",
     DefaultDuration: "PT1H",
     Status: "2",
-    ProcessingStatus: "1",,
+    ProcessingStatus: "1",
     VisitTypeCode: typeVisit.value,
     OwnerPartyID: employeeID,
     OrganizerPartyID: employeeID,
