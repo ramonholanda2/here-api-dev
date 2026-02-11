@@ -38,13 +38,16 @@ export function closeFormRoute() {
 
 export async function saveRoute(state) {
 
-  
+
   const nameRoute = document.getElementById('routeName').value.trim();
   const initialDate = document.getElementById('routeDate').value;
   const typeVisit = document.getElementById('routeTypeVisit')
   const typeVisitDesc = typeVisit.options[typeVisit.selectedIndex].text;
 
   const notes = document.getElementById('routeNotes').value.trim();
+
+  var notesObject = {};
+  if (notes) notesObject = { RouteNotes: [{ TypeCode: "10002", Text: notes }] };
 
   const daysWeekCheckboxes = document.querySelectorAll('.days-week input[type="checkbox"]');
   const daysSelected = Array.from(daysWeekCheckboxes)
@@ -74,9 +77,10 @@ export async function saveRoute(state) {
     PreparationTime: "PT1H"
   }));
 
+
   const params = new URLSearchParams(window.location.search);
   const employeeID = params.get("employeeID");
-  
+
   const payload = {
     Name: nameRoute || "Nova Rota",
     RouteTypeCode: "2",
@@ -91,20 +95,26 @@ export async function saveRoute(state) {
     OrganizerPartyID: employeeID,
     RouteAccount: routeAccounts,
     Z_TipoVisita_KUT: `${typeVisit.value} - ${typeVisitDesc}`,
+    ...notesObject
   };
 
   try {
     await axios.post('/api/rotas', payload)
-      .then((route) => {
+      .then(async (route) => {
         alert("Rota salva com sucesso!")
-        window.open(`https://my367994.crm.ondemand.com/sap/byd/nav?bo=ROUTE_TT&nav_mode=TI&param.Key=${route.data.ObjectID}`, "_blank")?.focus();
+        const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
+        const response = await axios.get(url)
+        const linkRouteCreated = decodeURIComponent(response.data);
+        console.log(linkRouteCreated)
+        window.open(linkRouteCreated, '_blank')?.focus();
+        //window.open(`https://my367994.crm.ondemand.com/sap/byd/nav?bo=ROUTE_TT&nav_mode=TI&param.Key=${route.data.ObjectID}`, "_blank")?.focus();
       })
     closeFormRoute();
     clearFormRoute();
     clearRoute(state);
   } catch (err) {
     console.error(err);
-    alert("Erro ao salvar rota.");
+    alert("Erro ao salvar rota.", err);
   }
 }
 

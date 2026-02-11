@@ -2,11 +2,15 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
-const axios = require('axios')
 const cors = require('cors');
-const { getCustomers, getEmployeeInfo, createRoute } = require('./services/services');
-require('dotenv').config();
+const { getCustomers, getEmployeeInfo, createRoute, getRedirectUrl } = require('./services/services');
 
+const hasVcap = !!process.env.VCAP_SERVICES;
+console.log("Is Env CF: ", hasVcap)
+
+if (!hasVcap) {
+  require('@sap/xsenv').loadEnv();
+}
 
 app.use(cors());
 app.use(express.json());
@@ -27,9 +31,18 @@ app.post('/api/rotas', async (req, res, next) => {
   }
 });
 
+app.get('/api/rotas/redirecionar/:routeUUID', async (req, res, next) => {
+  try {
+    const routeUUID = req.params.routeUUID;
+    const redirectUrl = await getRedirectUrl(routeUUID);
+    return res.send(encodeURIComponent(redirectUrl));
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.get('/api/clientes', async (req, res, next) => {
-  try { 
+  try {
 
     var customers = await getCustomers(req.query);
     return res.json(customers);
@@ -44,13 +57,14 @@ app.get('/api/empregado', async (req, res, next) => {
   try {
 
     const employeeData = await getEmployeeInfo(req.query.employeeID);
- 
+
     return res.status(200).json(employeeData);
 
   } catch (error) {
     next(error);
   }
 });
+
 
 
 // =============================

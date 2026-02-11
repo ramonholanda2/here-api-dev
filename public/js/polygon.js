@@ -403,7 +403,6 @@ export function isPointInPolygon(point, polygon) {
   const vertices = [];
   polygon.eachLatLngAlt((lat, lng) => vertices.push({ lat, lng }));
 
-  // Remove ponto repetido final == primeiro
   if (vertices.length > 0 &&
     vertices[0].lat === vertices[vertices.length - 1].lat &&
     vertices[0].lng === vertices[vertices.length - 1].lng) {

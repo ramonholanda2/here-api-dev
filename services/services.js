@@ -1,46 +1,38 @@
 
-import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
-const ENV = process.env;
+import { getDestination } from "@sap-cloud-sdk/connectivity"
+import { executeHttpRequest } from "@sap-cloud-sdk/http-client"
+
 
 async function getEmployeeInfo(employeeID) {
-    try {
-        const url = `https://${ENV.SALES_CLOUD_ENV}.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi/BusinessUserCollection?$filter=EmployeeID eq '${employeeID}'&$format=json`;
-        const response = await axios.get(url, {
-            headers: {
-                'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg==',
-            }
-        });
 
+  try {
+    const destination = await getDestination({ destinationName: "SALES_CLOUD" });
 
-        const data = response.data.d.results.map(empregado => ({
-            id: empregado.UserID,
-            name: empregado.BusinessPartnerFormattedName,
-            BusinessPartnerID: empregado.BusinessPartnerID
-        }));
-        return data[0];
+    const response = await executeHttpRequest(
+      destination,
+      { method: "GET", url: `/sap/c4c/odata/v1/c4codataapi/BusinessUserCollection?$filter=EmployeeID eq '${employeeID}'&$format=json` }
+    );
 
-    } catch (error) {
-        throw new Error('Erro ao obter informações do empregado:', error);
-    }
+    const data = response.data.d.results.map(employee => ({
+      id: employee.UserID,
+      name: employee.BusinessPartnerFormattedName,
+      BusinessPartnerID: employee.BusinessPartnerID
+    }));
+    return data[0];
+
+  } catch (error) {
+    throw new Error('Erro ao obter informações do empregado:', error);
+  }
 }
-
-
-const AUTH_HEADER = {
-  'Authorization': 'Basic TkFUSEFOQS5TRUlERUw6Rm9ydGxldkAyMDI1Rm9ydGxldkAyMDI1LiEhLg=='
-};
-
-const SALES_ARRANGEMENT_ORGUNIT_FIELD = 'OrganisationalUnitID';
-
 
 async function getCustomers(queryOptions) {
   try {
 
+
     const orgUnitIds = await findOrganisationalUnitEmployees(queryOptions.employeeID);
 
     if (!orgUnitIds.length) {
-      return []; 
+      return [];
     }
 
     const customers = await findCustomersBySalesOffice(orgUnitIds);
@@ -55,15 +47,22 @@ async function getCustomers(queryOptions) {
 
 
 async function findOrganisationalUnitEmployees(businessPartnerId) {
-  const base = `https://${ENV.SALES_CLOUD_ENV}.crm.ondemand.com/sap/c4c/odata/cust/v1/organisational_unit_employee/OrganisationalUnitEmployeeAssignmentCollection`;
+
+
+
+  const base = `/sap/c4c/odata/cust/v1/organisational_unit_employee/OrganisationalUnitEmployeeAssignmentCollection`;
   const url = `${base}?$format=json&$filter=EmployeeID eq '${businessPartnerId}'`;
 
   try {
-    const resp = await axios.get(url, { headers: AUTH_HEADER });
+    const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+    const response = await executeHttpRequest(
+      destination,
+      { method: "GET", url: url }
+    );
 
-    const results = resp?.data?.d?.results || [];
-    
-    // Extrai e deduplica os IDs de unidade
+
+    const results = response?.data?.d?.results || [];
+
     const ids = Array.from(
       new Set(
         results
@@ -82,7 +81,7 @@ async function findOrganisationalUnitEmployees(businessPartnerId) {
 async function findCustomersBySalesOffice(orgUnitIds = []) {
   if (!orgUnitIds.length) return [];
 
-  const base = `https://${ENV.SALES_CLOUD_ENV}.crm.ondemand.com/sap/c4c/odata/cust/v1/customers_by_salesoffice/SalesArrangementCollection`;
+  const base = `/sap/c4c/odata/cust/v1/customers_by_salesoffice/SalesArrangementCollection`;
 
   const filterOrgQuery = orgUnitIds
     .map(id => `SalesOfficeID eq '${String(id).replace(/'/g, "''")}'`)
@@ -93,8 +92,13 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
   console.log(url);
 
   try {
-    const resp = await axios.get(url, { headers: AUTH_HEADER });
-    const results = resp?.data?.d?.results || [];
+    const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+    const response = await executeHttpRequest(
+      destination,
+      { method: "GET", url: url }
+    );
+
+    const results = response?.data?.d?.results || [];
 
     const byCustomer = new Map();
 
@@ -125,35 +129,46 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
   }
 }
 
-async function createRoute(routeBody){
-   const URL = `https://${ENV.SALES_CLOUD_ENV}.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi/RouteCollection`;
+async function createRoute(routeBody) {
 
-    const csrfResp = await axios.get(URL + "?$top=1", {
-      headers: {
-        ...AUTH_HEADER,
-        "x-csrf-token": "fetch"
+  const url = `/sap/c4c/odata/v1/c4codataapi/RouteCollection`;
+
+  const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+  const csrfResp = await executeHttpRequest(
+    destination,
+    { method: "GET", url: `${url}?$top=1`, headers: { "x-csrf-token": "fetch" } }
+  );
+
+  const csrfToken = csrfResp.headers['x-csrf-token'];
+  const cookies = csrfResp.headers['set-cookie'];
+
+
+  const responseCreateRoute = await executeHttpRequest(
+    destination,
+    { method: "POST", 
+      url: url, 
+      headers: { 
+        "x-csrf-token": csrfToken, 
+        "Content-Type": "application/json", 
+        "Cookie": cookies?.join('; ') }, 
+        data: routeBody 
       }
-    });
+  );
 
-    const csrfToken = csrfResp.headers['x-csrf-token'];
-    const cookies = csrfResp.headers['set-cookie'];
-
-    const responseCreateRoute = await axios.post(URL, routeBody, {
-      headers: {
-        'Content-Type': "application/json",
-        ...AUTH_HEADER,
-        'x-csrf-token': csrfToken,
-        'Cookie': cookies?.join('; ')
-      }
-    });
-    const routeCreated = responseCreateRoute?.data?.d?.results
-    console.log(routeCreated)
-    return routeCreated;
+  const routeCreated = responseCreateRoute?.data?.d?.results
+  return routeCreated;
 }
 
- 
+async function getRedirectUrl(routeUUID) {
+  const target = `/sap/byd/nav?bo=ROUTE_TT&nav_mode=TI&param.Key=${routeUUID}`;
+  const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+  return `${destination.url}${target}`
+}
+
+
 export {
-    getEmployeeInfo,
-    getCustomers,
-    createRoute
+  getEmployeeInfo,
+  getCustomers,
+  createRoute,
+  getRedirectUrl
 }

@@ -5,3 +5,6 @@ applications:
   memory: 300M
   buildpacks: 
   - nodejs_buildpack
+  services:
+    - salescloud-destination-srv
+
