@@ -74,7 +74,8 @@ export async function saveRoute(state) {
     Duration: "PT1H",
     StartTime: "PT08H00M00S",
     EndTime: "PT09H00M00S",
-    PreparationTime: "PT1H"
+    PreparationTime: "PT1H",
+    VisitTypeCode: typeVisit.value
   }));
 
 
@@ -90,7 +91,8 @@ export async function saveRoute(state) {
     DefaultPreparationTime: "PT1H",
     DefaultDuration: "PT1H",
     Status: "2",
-    ProcessingStatus: "1",
+    ProcessingStatus: "1",,
+    VisitTypeCode: typeVisit.value,
     OwnerPartyID: employeeID,
     OrganizerPartyID: employeeID,
     RouteAccount: routeAccounts,
@@ -107,7 +109,6 @@ export async function saveRoute(state) {
         const linkRouteCreated = decodeURIComponent(response.data);
         console.log(linkRouteCreated)
         window.open(linkRouteCreated, '_blank')?.focus();
-        //window.open(`https://my367994.crm.ondemand.com/sap/byd/nav?bo=ROUTE_TT&nav_mode=TI&param.Key=${route.data.ObjectID}`, "_blank")?.focus();
       })
     closeFormRoute();
     clearFormRoute();

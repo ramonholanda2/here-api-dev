@@ -40,7 +40,7 @@ async function getCustomers(queryOptions) {
     return customers;
 
   } catch (err) {
-    console.error('getCustomers error:', err?.response?.data || err);
+    console.error('getCustomers error:', err);
     return { erro: true, mensagem: 'Falha ao buscar clientes por Sales Office.', detalhes: err?.message };
   }
 }
@@ -48,18 +48,19 @@ async function getCustomers(queryOptions) {
 
 async function findOrganisationalUnitEmployees(businessPartnerId) {
 
-
-
   const base = `/sap/c4c/odata/cust/v1/organisational_unit_employee/OrganisationalUnitEmployeeAssignmentCollection`;
   const url = `${base}?$format=json&$filter=EmployeeID eq '${businessPartnerId}'`;
 
+  console.log("get customers url: ", url);
+
   try {
+    console.log("tentando buscar destination");
     const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+    console.log(destination);
     const response = await executeHttpRequest(
       destination,
       { method: "GET", url: url }
     );
-
 
     const results = response?.data?.d?.results || [];
 
@@ -72,8 +73,8 @@ async function findOrganisationalUnitEmployees(businessPartnerId) {
     );
     return ids;
   } catch (err) {
-    console.error('findOrganisationalUnitEmployees error:', err?.response?.data || err);
-    return [];
+    console.error('findOrganisationalUnitEmployees error:', err);
+    throw new Error(err);
   }
 }
 
