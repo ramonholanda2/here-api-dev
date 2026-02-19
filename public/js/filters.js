@@ -7,7 +7,7 @@ const LS_KEY = 'clientes_filtros_v1';
 
 const fieldMap = {
   nome: ['CustomerName'],
-  statusCliente: ['StatusAtividade_KUT'],
+  statusCliente: ['Z_Classificao_KUT'],
   estado: ['CustomerPostalAddress.0.RegionCode', 'RegionCode'],
   cidade: ['CustomerPostalAddress.0.CityName', 'CityName'],
   cnpj: ['zCNPJ_KUT'],
@@ -67,7 +67,6 @@ export function filterCustomers(all, filters) {
       if (!nome.includes(f.nome)) return false;
     }
 
-    // status (equals, mas tolerante)
     if (f.statusCliente) {
       const status = norm(getFirst(customer, fieldMap.statusCliente));
       if (!status || !status.includes(f.statusCliente)) return false;

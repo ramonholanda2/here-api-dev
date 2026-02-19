@@ -17,7 +17,7 @@ export function renderCustomerList(state, customers) {
   gridContainer.className = "clients-grid";
 
   customers.forEach((customer, index) => {
-    const color = statusColors[customer.StatusAtividade_KUT] || "green";
+    const color = statusColors[customer.Z_Classificao_KUT] || "green";
     addMarker(state, { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, color, customer.CustomerName, customer.CustomerInternalID);
 
     const item = document.createElement("div");

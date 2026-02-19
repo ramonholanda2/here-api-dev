@@ -56,7 +56,6 @@ async function findOrganisationalUnitEmployees(businessPartnerId) {
   try {
     console.log("tentando buscar destination");
     const destination = await getDestination({ destinationName: "SALES_CLOUD" });
-    console.log(destination);
     const response = await executeHttpRequest(
       destination,
       { method: "GET", url: url }
@@ -81,14 +80,15 @@ async function findOrganisationalUnitEmployees(businessPartnerId) {
 
 async function findCustomersBySalesOffice(orgUnitIds = []) {
   if (!orgUnitIds.length) return [];
-
-  const base = `/sap/c4c/odata/cust/v1/customers_by_salesoffice/SalesArrangementCollection`;
+  
+  const base = process.env.CUSTOMER_ODATA_PATH;
+  if(!base) return [];
 
   const filterOrgQuery = orgUnitIds
-    .map(id => `SalesOfficeID eq '${String(id).replace(/'/g, "''")}'`)
+    .map(id => `CSALES_OFFICE_UUID eq '${String(id).replace(/'/g, "''")}'`)
     .join(' or ');
 
-  const url = `${base}?$expand=CustomerPostalAddress&$format=json&$filter=${encodeURI(filterOrgQuery)}`;
+  const url = `${base}?$format=json&$filter=${encodeURI(filterOrgQuery)}&$top=99999`;
 
   console.log(url);
 
@@ -99,7 +99,10 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
       { method: "GET", url: url }
     );
 
-    const results = response?.data?.d?.results || [];
+    const payload = response?.data?.d?.results || [];
+
+    const results = mapResponsePayload(payload);
+
 
     const byCustomer = new Map();
 
@@ -121,6 +124,7 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
       }
     }
 
+
     // Resultado final deduplicado
     return Array.from(byCustomer.values());
 
@@ -129,6 +133,43 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
     return [];
   }
 }
+
+
+function mapResponsePayload(results) {
+  const payload = [];
+
+  for (const item of results) {
+    const base = {
+      CustomerInternalID: item.CBP_UUID,
+      CustomerName: item.TBP_UUID,
+      FormattedPostalAddressDescription: item.CFRMTD_PSTL_ADDR,
+      zCNPJ_KUT: item.Cs1ANs020182A49D8C624,
+      LatitudeMeasure: item.CLATITUDE_MEASURE,
+      LongitudeMeasure: item.CLONGITUDE_MEASURE,
+      SalesGroupName: item.TSALES_GROUP_UUID,
+      SalesOfficeName: item.TSALES_OFFICE_UUID,
+      SalesOfficeID: item.CSALES_OFFICE_UUID,
+      LifeCycleStatusCode: "2",
+      Z_Classificao_KUT: "CRESCENDO",
+
+      CustomerPostalAddress: [
+        {
+          StreetName: item.CSTREET_NAME,
+          StreetPostalCode: item.CSTREET_POSTAL,
+          RegionCode: item.CREGION_CODE,
+          CountryCode: item.CCOUNTRY_CODE,
+          CityName: item.CCITY_NAME
+        }
+      ]
+
+    };
+
+    payload.push(base);
+  }
+
+  return payload;
+}
+
 
 async function createRoute(routeBody) {
 
@@ -146,14 +187,16 @@ async function createRoute(routeBody) {
 
   const responseCreateRoute = await executeHttpRequest(
     destination,
-    { method: "POST", 
-      url: url, 
-      headers: { 
-        "x-csrf-token": csrfToken, 
-        "Content-Type": "application/json", 
-        "Cookie": cookies?.join('; ') }, 
-        data: routeBody 
-      }
+    {
+      method: "POST",
+      url: url,
+      headers: {
+        "x-csrf-token": csrfToken,
+        "Content-Type": "application/json",
+        "Cookie": cookies?.join('; ')
+      },
+      data: routeBody
+    }
   );
 
   const routeCreated = responseCreateRoute?.data?.d?.results

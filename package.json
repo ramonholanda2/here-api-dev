@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@sap/xsenv": "^6.1.0",
+    "dotenv": "^17.3.1",
     "nodemon": "^3.1.10"
   }
 }

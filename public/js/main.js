@@ -1,6 +1,6 @@
 // public/js/main.js
 import { state, hydrateEmployeeFieldFromQuery } from './config.js';
-import { loadCustomers } from './init.js';
+import { initApp, loadCustomers } from './init.js';
 import { optimizeRoute, clearRoute } from './routing.js';
 import { openFormRoute, saveRoute, closeFormRoute, clearFormRoute } from './form-route.js';
 import {
@@ -11,14 +11,18 @@ import {
   hidePolygonInstructions
 } from './polygon.js';
 import { setupFiltersToggle } from './filters-toggle.js';
-import { applyFiltersAndRender } from './filters.js';
+import { applyFiltersAndRender, renderCustomers } from './filters.js';
 import { validateRouteForm } from './route-form-validate.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   //hydrateEmployeeFieldFromQuery();
   setupFiltersToggle();
 
-  loadCustomers();
+  initApp()
+  
+  loadCustomers().then(() => {
+    renderCustomers()
+  });
 
   document.getElementById('btnClearRoute')?.addEventListener('click', () => clearRoute(state));
   document.getElementById('btnOpenFormRoute')?.addEventListener('click', () => {

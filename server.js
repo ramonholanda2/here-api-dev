@@ -9,7 +9,9 @@ const hasVcap = !!process.env.VCAP_SERVICES;
 console.log("Is Env CF: ", hasVcap)
 
 if (!hasVcap) {
+  console.log("Carregando variáveis de ambiente .env/xsenv");
   require('@sap/xsenv').loadEnv();
+  require('dotenv').config();
 }
 
 app.use(cors());

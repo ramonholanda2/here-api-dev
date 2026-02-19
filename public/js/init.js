@@ -27,7 +27,7 @@ export async function loadCustomers() {
     console.log('[loadCustomers] clientes', list);
 
     state.allCustomers = list;
-    initApp();
+    //initApp();
   } catch (err) {
     console.error('Erro ao carregar clientes:', err);
     const clientList = document.getElementById("clientList");
@@ -72,5 +72,5 @@ export function initApp() {
 
   state.router = state.platform.getRoutingService(null, 8);
 
-  renderCustomers();
+  //renderCustomers();
 }
