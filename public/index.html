@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meus clientes sem visitas planejadas - SAP Fiori</title>
+  <title>Planejamento de rota</title>
 
   <!-- HERE Maps -->
   <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
@@ -18,16 +18,18 @@
 
   <!-- Seu CSS -->
   <link rel="stylesheet" type="text/css" href="/public/styles.css" />
+  <link rel="stylesheet" type="text/css" href="/public/css/toast.css" />
 </head>
 
 <body>
 
   <div class="container">
+    <div id="toast-container"></div>
     <div class="sidebar">
       <div class="sidebar-header">
         <div class="header-icon">📋</div>
         <div class="header-content">
-          <div class="header-title">Meus clientes sem visitas planejadas</div>
+          <div class="header-title">Clientes</div>
           <div class="header-info">Mostrando 1 - 9</div>
         </div>
       </div>
@@ -47,7 +49,7 @@
             </div>
 
             <div class="filter-field">
-              <label for="f_status">Status do cliente</label>
+              <label for="f_status">Classificação</label>
               <select id="f_status" name="statusCliente">
                 <option value="">Todos</option>
                 <option value="CRESCENDO">Crescendo</option>
@@ -103,11 +105,23 @@
         </div>
 
         <div class="filters-actions">
+          <button id="btnToggleSelected" class="fiori-button" type="button" aria-expanded="true"
+            aria-controls="filtersPanel" title="Clientes Selecionados">
+            Clientes Selecionados
+          </button>
+          
+           <button id="btnDeselectAll" class="fiori-button" type="button" aria-expanded="true"
+            aria-controls="filtersPanel" title="Desmarcar todos">
+            Desmarcar todos
+          </button>
+
           <button id="toggleFiltersBtn" class="fiori-button" type="button" aria-expanded="true"
             aria-controls="filtersPanel" title="Mostrar ou ocultar filtros">
             ⬆️ Ocultar filtros
           </button>
+
         </div>
+        
       </form>
 
       <div class="sidebar-content">

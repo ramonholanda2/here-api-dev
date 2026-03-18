@@ -27,15 +27,22 @@ async function getEmployeeInfo(employeeID) {
 
 async function getCustomers(queryOptions) {
   try {
+    let customers = [];
 
+    if(queryOptions.employeeID) {
+      const orgUnitIds = await findOrganisationalUnitEmployees(queryOptions.employeeID);
 
-    const orgUnitIds = await findOrganisationalUnitEmployees(queryOptions.employeeID);
+      if (!orgUnitIds.length) {
+        return { erro: true, mensagem: `Nenhuma Sales Office encontrada para o empregado ${queryOptions.employeeID}.` };
+      }
 
-    if (!orgUnitIds.length) {
-      return [];
+      customers = await findCustomersBySalesOffice(orgUnitIds);
     }
 
-    const customers = await findCustomersBySalesOffice(orgUnitIds);
+    if(queryOptions.stateTown && queryOptions.status) {
+      customers = await findCustomersByStateTown(queryOptions.stateTown, queryOptions.status);
+      
+    }
 
     return customers;
 
@@ -46,15 +53,60 @@ async function getCustomers(queryOptions) {
 }
 
 
+
+async function findCustomersByStateTown(stateTown, status) {
+  const base = process.env.CUSTOMER_ODATA_PATH;
+  if(!base) return [];
+
+  const url = `${base}?$format=json&$filter=${encodeURI("CREGION_CODE eq '" + stateTown + "'")}${encodeURI(" and CVARIATUSROOT47DABF57C1EE435F eq '" + status + "'")}&$top=99999`;
+
+  console.log(url);
+
+  try {
+    const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+    const response = await executeHttpRequest(
+      destination,
+      { method: "GET", url: url }
+    );
+
+    const payload = response?.data?.d?.results || [];
+
+    const results = mapResponsePayload(payload);
+
+
+    const byCustomer = new Map();
+
+    for (const item of results) {
+      const key = item.CustomerInternalID;
+      if (!key) continue;
+
+      if (!byCustomer.has(key)) {
+        byCustomer.set(key, {
+          ...item,
+          salesOffices: item.SalesOfficeID ? [item.SalesOfficeID] : []
+        });
+      } else {
+        const acc = byCustomer.get(key);
+
+        if (item.SalesOfficeID && !acc.salesOffices.includes(item.SalesOfficeID)) {
+          acc.salesOffices.push(item.SalesOfficeID);
+        }
+      }
+    }
+    return Array.from(byCustomer.values());
+  } catch (err) {
+    console.error('findCustomersByStateTown error:', err);
+    throw new Error(err);
+  }
+}
+
 async function findOrganisationalUnitEmployees(businessPartnerId) {
 
   const base = `/sap/c4c/odata/cust/v1/organisational_unit_employee/OrganisationalUnitEmployeeAssignmentCollection`;
   const url = `${base}?$format=json&$filter=EmployeeID eq '${businessPartnerId}'`;
 
-  console.log("get customers url: ", url);
 
   try {
-    console.log("tentando buscar destination");
     const destination = await getDestination({ destinationName: "SALES_CLOUD" });
     const response = await executeHttpRequest(
       destination,
@@ -149,8 +201,7 @@ function mapResponsePayload(results) {
       SalesGroupName: item.TSALES_GROUP_UUID,
       SalesOfficeName: item.TSALES_OFFICE_UUID,
       SalesOfficeID: item.CSALES_OFFICE_UUID,
-      LifeCycleStatusCode: "2",
-      Z_Classificao_KUT: "CRESCENDO",
+      Z_Classificao_KUT: item.CVARIATUSROOT47DABF57C1EE435F,
 
       CustomerPostalAddress: [
         {

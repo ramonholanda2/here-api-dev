@@ -11,16 +11,18 @@ import {
   hidePolygonInstructions
 } from './polygon.js';
 import { setupFiltersToggle } from './filters-toggle.js';
-import { applyFiltersAndRender, renderCustomers } from './filters.js';
+import { applyFiltersAndRender, renderCustomers, toggleShowSelected } from './filters.js';
 import { validateRouteForm } from './route-form-validate.js';
+import { showToast } from './util.js';
+import { deselectAllCustomers } from './customers.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   //hydrateEmployeeFieldFromQuery();
   setupFiltersToggle();
 
   initApp()
-  
-  loadCustomers().then(() => {
+
+  await loadCustomers().then(() => {
     renderCustomers()
   });
 
@@ -47,6 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleShapeMenu(btnSelectShape, shapeMenu, toggleSelectArea);
   });
 
+  
+  document.getElementById("btnDeselectAll").onclick = () => {
+    deselectAllCustomers(state);
+  };
+
+
   document.addEventListener('click', () => toggleShapeMenu(btnSelectShape, shapeMenu, false));
 
   function toggleShapeMenu(anchorBtn, menuEl, show) {
@@ -70,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { valid, errors } = validateRouteForm();
     if (!valid) {
       e.preventDefault();
-      alert(errors.join('\n'));
+      errors.forEach(err => showToast(err, 'error'));
       return;
     }
 
@@ -95,17 +103,73 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('filtersPanel');
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
-    applyFiltersAndRender(); // lê UI, salva local, filtra e renderiza
+    applyFiltersAndRender(state); // lê UI, salva local, filtra e renderiza
   });
 
-  ['f_nome', 'f_status', 'f_estado', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_regiao', 'f_equipe', 'f_pin']
-    .forEach(id => {
-      const el = document.getElementById(id);
-      el?.addEventListener('change', applyFiltersAndRender);
-      if (el?.tagName === 'INPUT') {
-        el.addEventListener('keyup', (ev) => {
-          if (ev.key === 'Enter') applyFiltersAndRender();
-        });
+  console.log('state.allCustomers', state.allCustomers.length)
+  
+  document.getElementById("btnToggleSelected").onclick = () => {
+    toggleShowSelected(state);
+
+    document.getElementById("btnToggleSelected").textContent = state.showOnlySelected ? "Mostrar todos" : "Clientes Selecionados";
+  };
+
+
+  if (state.allCustomers.length === 0) {
+    const stateTown = document.getElementById("f_estado");
+    const status = document.getElementById("f_status");
+
+    let stateTownValue = "";
+    let statusValue = "";
+    let debounceTimer = null;
+
+    const tryLoad = () => {
+      clearTimeout(debounceTimer);
+
+      debounceTimer = setTimeout(() => {
+        const validUF = stateTownValue.length === 2;
+        const validStatus = statusValue != "";
+
+        if (validUF && validStatus) {
+          state.allCustomers = [];
+          state.allCustomersFiltered = [];
+          state.markers = [];
+          loadCustomers({
+            stateTown: stateTownValue,
+            status: statusValue
+          }).then(renderCustomers);
+        }
+      }, 350); // evita spam de chamadas
+    };
+
+    stateTown?.addEventListener("change", () => {
+      if (stateTown.value.length === 2) {
+        stateTownValue = stateTown.value;
+        tryLoad();
       }
     });
+
+    status?.addEventListener("input", () => {
+      if (status.value) {
+        statusValue = status.value;
+        tryLoad();
+      }
+    });
+  }
+
+
+  let listFieldsName = ['f_nome', 'f_status', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_regiao', 'f_equipe', 'f_pin'];
+
+  if (state.allCustomers.length != 0) listFieldsName.push('f_estado');
+
+  console.log('listFieldsName', listFieldsName);
+  listFieldsName.forEach(id => {
+    const el = document.getElementById(id);
+    el?.addEventListener('change', ev => applyFiltersAndRender(state.showOnlySelected));
+    if (el?.tagName === 'INPUT') {
+      el.addEventListener('keyup', (ev) => {
+        if (ev.key === 'Enter') applyFiltersAndRender(state.showOnlySelected);
+      });
+    }
+  });
 });

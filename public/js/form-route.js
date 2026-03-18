@@ -1,11 +1,12 @@
 // js/form-route.js
 import { getSelectedClients } from './customers.js';
 import { clearRoute } from './routing.js';
+import { showToast } from './util.js';
 
 export async function openFormRoute(state) {
   const customers = getSelectedClients(state);
   if (customers.length === 0) {
-    alert("Selecione pelo menos um cliente para criar a rota.");
+    showToast('Selecione pelo menos um cliente para criar uma rota.', 'error', 5000);
     return;
   }
 
@@ -103,19 +104,32 @@ export async function saveRoute(state) {
   try {
     await axios.post('/api/rotas', payload)
       .then(async (route) => {
-        alert("Rota salva com sucesso!")
-        const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
+
+        const timeMessageMS = 3000;
+        showToast('Rota criada com sucesso.', 'success', timeMessageMS);
+        
+        setTimeout(async () => {
+            const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
+            const response = await axios.get(url);
+            const linkRouteCreated = decodeURIComponent(response.data);
+
+            console.log(linkRouteCreated);
+            window.open(linkRouteCreated, '_blank')?.focus();
+        }, timeMessageMS + 500);
+
+
+       /*  const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
         const response = await axios.get(url)
         const linkRouteCreated = decodeURIComponent(response.data);
         console.log(linkRouteCreated)
-        window.open(linkRouteCreated, '_blank')?.focus();
+        window.open(linkRouteCreated, '_blank')?.focus(); */
       })
     closeFormRoute();
     clearFormRoute();
     clearRoute(state);
   } catch (err) {
     console.error(err);
-    alert("Erro ao salvar rota.", err);
+    showToast('Erro ao salvar rota, contate o suporte.', 'error', 5000);
   }
 }
 

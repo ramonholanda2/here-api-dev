@@ -1,27 +1,36 @@
 // public/js/init.js
 import { apiKey, state } from './config.js';
 import { renderCustomers } from './filters.js';
+import { showToast } from './util.js';
 
-export async function loadCustomers() {
+export async function loadCustomers(parameters) {
   try {
     const params = new URLSearchParams(window.location.search);
     const employeeID = params.get('employeeID');
 
-    const url = employeeID
-      ? `/api/clientes?employeeID=${encodeURIComponent(employeeID)}`
-      : `/api/clientes`;
+    console.log('[loadCustomers] employeeID', employeeID);
+    console.log('[loadCustomers] parameters', parameters);
+    let url = `/api/clientes`;
+
+    if (employeeID) {
+      url = `/api/clientes?employeeID=${encodeURIComponent(employeeID)}`
+    }
+    if (parameters?.stateTown && parameters?.status) {
+      url = `/api/clientes?stateTown=${encodeURIComponent(parameters.stateTown)}&status=${encodeURIComponent(parameters.status)}`; 
+    }
 
     console.log('[loadCustomers] GET', url);
     const { data } = await axios.get(url);
 
     const list =
       Array.isArray(data) ? data
-      : Array.isArray(data?.results) ? data.results
-      : Array.isArray(data?.items) ? data.items
-      : [];
+        : Array.isArray(data?.results) ? data.results
+          : Array.isArray(data?.items) ? data.items
+            : [];
 
     if (!list.length) {
-      console.warn('[loadCustomers] Nenhum cliente retornado ou formato inesperado:', data);
+      console.warn('[loadCustomers] Nenhum cliente retornado. Resposta:', data);
+      showToast('Nenhum cliente retornado, por favor preencha no filtro o estado e a classificação.', 'warning', 5000);
     }
 
     console.log('[loadCustomers] clientes', list);
@@ -29,7 +38,7 @@ export async function loadCustomers() {
     state.allCustomers = list;
     //initApp();
   } catch (err) {
-    console.error('Erro ao carregar clientes:', err);
+    console.error('Erro ao carregar clientes:', err?.response?.data || err);
     const clientList = document.getElementById("clientList");
     if (clientList) clientList.innerText = "Erro ao carregar clientes.";
   }

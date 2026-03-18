@@ -47,6 +47,7 @@ app.get('/api/clientes', async (req, res, next) => {
   try {
 
     var customers = await getCustomers(req.query);
+    console.log("query", req.query);
     return res.json(customers);
 
   } catch (error) {

@@ -1,5 +1,6 @@
 // public/js/filters.js
 import { state } from './config.js';
+import { getSelectedClients } from './customers.js';
 import { renderCustomerList } from './list.js';
 import { clearMarkers, updateMarkerVisibility } from './markers.js';
 
@@ -125,19 +126,34 @@ export function filterCustomers(all, filters) {
   });
 }
 
-/** Aplica filtros atuais da UI, salva e re-renderiza */
+export function toggleShowSelected(state) {
+  state.showOnlySelected = !state.showOnlySelected;
+  applyFiltersAndRender(state.showOnlySelected);
+}
 
 
 export function getCustomersFiltered() {
   return filterCustomers(state.allCustomers, getFiltersFromUI());
 }
 
-export function applyFiltersAndRender() {
+export function applyFiltersAndRender(showOnlySelected = false) {
   const filters = getFiltersFromUI();
   //localStorage.setItem('clientes_filtros_v1', JSON.stringify(filters));
 
   // clientes filtrados
-  const filtered = filterCustomers(state.allCustomers, filters);
+  let filtered = filterCustomers(state.allCustomers, filters);
+
+  console.log("showOnlySelected", showOnlySelected);
+  if(showOnlySelected){
+    
+  const selected = getSelectedClients(state);
+    const selectedIds = new Set(selected.map(c => String(c.CustomerInternalID)));
+
+    filtered = filtered.filter(c =>
+      selectedIds.has(String(c.CustomerInternalID))
+    );
+  }
+
   const filteredIds = new Set(filtered.map(c => String(c.CustomerInternalID)));
 
   updateMarkerVisibility(state, filtered);

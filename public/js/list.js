@@ -32,7 +32,7 @@ export function renderCustomerList(state, customers) {
 
     const name = document.createElement("div");
     name.className = "client-name";
-    name.textContent = customer.CustomerName;
+    name.textContent = `${customer.CustomerName} - ${customer.CustomerInternalID}`;
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";

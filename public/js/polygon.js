@@ -2,6 +2,7 @@
 import { drawRoute, clearRoute } from './routing.js';
 import { getSelectedClients } from './customers.js';
 import { getCustomersFiltered } from './filters.js';
+import { showToast } from './util.js';
 
 export function enablePolygonSelection(state, mode) {
   state.selectionShape = mode;
@@ -364,7 +365,7 @@ export function clearPolygonSelection(state) {
 
 export function selectClientsInPolygon(state) {
   if (!state.currentPolygon) {
-    alert('Nenhuma área selecionada.');
+    showToast('Nenhuma área selecionada.', 'error');
     return;
   }
 
@@ -391,11 +392,11 @@ export function selectClientsInPolygon(state) {
   });
 
   if (selectedCount > 0) {
-    alert(`${selectedCount} cliente(s) selecionado(s) na área.`);
+    showToast(`${selectedCount} cliente(s) selecionado(s) na área.`);
     const selected = getSelectedClients(state);
     //if (selected.length >= 2) drawRoute(state, selected);
   } else {
-    alert('Nenhum cliente encontrado na área selecionada.');
+    showToast('Nenhum cliente encontrado na área selecionada.', 'warning');
   }
 }
 

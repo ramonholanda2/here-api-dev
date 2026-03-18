@@ -4,12 +4,14 @@ export const apiKey = 'cn1jsr6t-Av8fGyDYWosAqeKHK7HsEAMCVG5PWs0ILQ';
 export const statusColors = {
   "CRESCENDO": "green",
   "ESTAVEL": "yellow",
+  "QUEDA": "red",
   "INATIVO": "gray",
   "SEMVARIACAO": "gray",
 };
 
 export const state = {
   allCustomers: [],
+  showOnlySelected: false,
   map: null,
   platform: null,
   ui: null,
