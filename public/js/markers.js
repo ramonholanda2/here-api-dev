@@ -1,3 +1,5 @@
+import { state } from "./config.js";
+
 // public/js/markers.js
 export function addMarker(state, coords, color, title, customerID) {
 
@@ -33,4 +35,10 @@ export function updateMarkerVisibility(state, filteredCustomers) {
     const shouldShow = visibleIds.has(markerObj.customerID);
     markerObj.marker.setVisibility(shouldShow);
   });
+}
+
+
+export function centerMapInMarker(data) {
+  console.log('centerMapInMarker', data);
+  state.map.getViewModel().setLookAtData(data, false);
 }

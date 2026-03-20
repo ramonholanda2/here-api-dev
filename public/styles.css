@@ -139,7 +139,6 @@ body {
     border: 1px solid #e5e5e5;
     border-radius: 0.5rem;
     padding: 1.25rem;
-    cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     min-height: 120px;
@@ -165,16 +164,50 @@ body {
     margin-bottom: 0.75rem;
 }
 
-.client-number {
-    font-size: 0.815rem;
-    font-weight: 600;
-    color: #0a6ed1;
-    min-width: 1.5rem;
-    background: #f0f7ff;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    text-align: center;
+
+
+.client-location {
+  width: 18px;
+  height: 18px;
+  border-radius: 50% 50% 50% 0;
+  background: #000; 
+  transform: rotate(-45deg);
+  position: relative;
+  display: inline-block;
+  margin: 4px;
+
 }
+
+/* Círculo interno do pin */
+.client-location::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 5.5px;
+  left: 5.5px;
+}
+
+/* Hover — quadrado com borda e fundo suave */
+.client-location:hover {
+  cursor: pointer;
+  background: #111; /* leve escurecida */
+  box-shadow:
+    0 0 0 6px rgba(150,150,150,0.15), /* fundo quadrado suave */
+    0 0 6px rgba(0,0,0,0.3);          /* leve glow preto */
+}
+
+/* Clique — efeito mais forte */
+.client-location:active {
+  transform: rotate(-45deg) scale(0.9);
+  box-shadow:
+    0 0 0 6px rgba(120,120,120,0.25),
+    0 0 10px rgba(0,0,0,0.4);
+}
+
+
 
 .client-name {
     font-size: 0.815rem;
@@ -1035,11 +1068,7 @@ textarea:focus {
         margin-left: 1.75rem;
     }
 
-    .client-number {
-        font-size: 0.8125rem;
-        min-width: 1.25rem;
-        padding: 0.2rem 0.4rem;
-    }
+   
 
     #mapContainer {
         width: 100%;
@@ -1167,11 +1196,7 @@ textarea:focus {
         margin-left: 1.5rem;
     }
 
-    .client-number {
-        font-size: 0.75rem;
-        min-width: 1rem;
-        padding: 0.15rem 0.3rem;
-    }
+
 
     .client-checkbox {
         width: 1rem;

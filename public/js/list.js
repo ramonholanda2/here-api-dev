@@ -1,6 +1,6 @@
 // public/js/list.js
 import { statusColors } from './config.js';
-import { addMarker } from './markers.js';
+import { addMarker, centerMapInMarker } from './markers.js';
 import { getSelectedClients } from './customers.js';
 import { drawRoute, clearRoute } from './routing.js';
 
@@ -26,9 +26,8 @@ export function renderCustomerList(state, customers) {
     const header = document.createElement("div");
     header.className = "client-header";
 
-    const number = document.createElement("div");
-    number.className = "client-number";
-    number.textContent = `${index + 1}.`;
+    const location = document.createElement("span");
+    location.className = "client-location";
 
     const name = document.createElement("div");
     name.className = "client-name";
@@ -56,11 +55,23 @@ export function renderCustomerList(state, customers) {
       }
     });
 
-    item.addEventListener('click', (e) => {
+    checkbox.addEventListener('click', (e) => {
       if (e.target !== checkbox) checkbox.click();
     });
 
-    header.appendChild(number);
+    location.addEventListener('click', (e) => {
+      var locationData =
+      {
+        position: { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, 
+        zoom: 16,               
+        tilt: 0,                
+        heading: 180            
+      }
+
+      centerMapInMarker(locationData)
+    })
+
+    header.appendChild(location);
     header.appendChild(name);
     header.appendChild(checkbox);
     item.appendChild(header);

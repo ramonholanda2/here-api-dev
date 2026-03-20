@@ -1,6 +1,7 @@
 // js/config.js
 export const apiKey = 'cn1jsr6t-Av8fGyDYWosAqeKHK7HsEAMCVG5PWs0ILQ';
 
+
 export const statusColors = {
   "CRESCENDO": "green",
   "ESTAVEL": "yellow",
