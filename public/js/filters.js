@@ -140,10 +140,8 @@ export function applyFiltersAndRender(showOnlySelected = false) {
   const filters = getFiltersFromUI();
   //localStorage.setItem('clientes_filtros_v1', JSON.stringify(filters));
 
-  // clientes filtrados
   let filtered = filterCustomers(state.allCustomers, filters);
 
-  console.log("showOnlySelected", showOnlySelected);
   if(showOnlySelected){
     
   const selected = getSelectedClients(state);

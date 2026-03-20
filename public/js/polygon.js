@@ -3,6 +3,7 @@ import { drawRoute, clearRoute } from './routing.js';
 import { getSelectedClients } from './customers.js';
 import { getCustomersFiltered } from './filters.js';
 import { showToast } from './util.js';
+import { state } from './config.js';
 
 export function enablePolygonSelection(state, mode) {
   state.selectionShape = mode;
@@ -324,6 +325,8 @@ export function hidePolygonInstructions() {
 }
 
 export function showPolygonActions() {
+  console.log("showPolygonActions");
+  state.isShowPolygonActions = true;
   const actionDiv = document.createElement('div');
   actionDiv.id = 'polygonActions';
   actionDiv.className = 'polygon-actions';
@@ -342,6 +345,7 @@ export function showPolygonActions() {
     document.dispatchEvent(new CustomEvent('polygon:selectClients'));
   });
   document.getElementById('btnRemoveArea')?.addEventListener('click', () => {
+    state.isShowPolygonActions = false;
     document.dispatchEvent(new CustomEvent('polygon:clear'));
   });
 }
@@ -396,7 +400,7 @@ export function selectClientsInPolygon(state) {
     const selected = getSelectedClients(state);
     //if (selected.length >= 2) drawRoute(state, selected);
   } else {
-    showToast('Nenhum cliente encontrado na área selecionada.', 'warning');
+    showToast('Nenhum cliente encontrado na área selecionada.', 'error');
   }
 }
 

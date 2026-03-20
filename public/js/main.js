@@ -8,7 +8,8 @@ import {
   clearPolygonSelection,
   selectClientsInPolygon,
   hidePolygonActions,
-  hidePolygonInstructions
+  hidePolygonInstructions,
+  showPolygonActions
 } from './polygon.js';
 import { setupFiltersToggle } from './filters-toggle.js';
 import { applyFiltersAndRender, renderCustomers, toggleShowSelected } from './filters.js';
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     toggleShapeMenu(btnSelectShape, shapeMenu, toggleSelectArea);
   });
 
-  
+
   document.getElementById("btnDeselectAll").onclick = () => {
     deselectAllCustomers(state);
   };
@@ -94,8 +95,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   const cancel = () => { closeFormRoute(); clearFormRoute(); };
-  document.getElementById('btnCancelForm')?.addEventListener('click', cancel);
-  document.getElementById('btnCloseForm')?.addEventListener('click', cancel);
+  document.getElementById('btnCancelForm')?.addEventListener('click', e => {
+    if (state.isShowPolygonActions == true) showPolygonActions()
+      console.log('state.showPolygonActions', state.isShowPolygonActions)
+    cancel();
+  });
+  document.getElementById('btnCloseForm')?.addEventListener('click', e => {
+    console.log('state.showPolygonActions', state.isShowPolygonActions)
+    if (state.isShowPolygonActions == true) showPolygonActions()
+    cancel();
+  });
 
   document.addEventListener('polygon:clear', () => clearPolygonSelection(state));
   document.addEventListener('polygon:selectClients', () => selectClientsInPolygon(state));
@@ -107,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   console.log('state.allCustomers', state.allCustomers.length)
-  
+
   document.getElementById("btnToggleSelected").onclick = () => {
     toggleShowSelected(state);
 

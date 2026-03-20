@@ -20,5 +20,9 @@ export function deselectAllCustomers(state) {
    const filtered = getCustomersFiltered(state);
   updateMarkerVisibility(state, filtered);
   state.showOnlySelected = false
+
+  document.getElementById("btnToggleSelected").textContent = "Clientes Selecionados";
+
+
   applyFiltersAndRender(false);
 }

@@ -12,6 +12,7 @@ export const statusColors = {
 export const state = {
   allCustomers: [],
   showOnlySelected: false,
+  isShowPolygonActions: false,
   map: null,
   platform: null,
   ui: null,
