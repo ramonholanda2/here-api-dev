@@ -46,7 +46,8 @@ app.get('/api/rotas/redirecionar/:routeUUID', async (req, res, next) => {
 app.get('/api/clientes', async (req, res, next) => {
   try {
 
-    if(!req.query.employeeID) return res.json([]);
+    console.log("query", req.query);
+    if(!req.query.employeeID && !req.query.salesOfficesIDs) return res.json([]);
 
     var customers = await getCustomers(req.query);
     console.log("query", req.query);

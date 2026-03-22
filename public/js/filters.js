@@ -176,9 +176,10 @@ export function applyFiltersAndRender(showOnlySelected = false) {
 
 
 export function renderCustomers() {
-  let saved = {};
+  let saved = {}
   /* try { saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch {}
   setFiltersToUI(saved); */
+
 
   const filtered = filterCustomers(state.allCustomers, saved);
 

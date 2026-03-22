@@ -17,15 +17,13 @@ export async function loadCustomers(parameters) {
     const params = new URLSearchParams(window.location.search);
     const employeeID = params.get('employeeID');
 
-    console.log('[loadCustomers] employeeID', employeeID);
-    console.log('[loadCustomers] parameters', parameters);
     let url = `/api/clientes`;
 
     if (employeeID) {
       url = `/api/clientes?employeeID=${encodeURIComponent(employeeID)}`
     }
-    if (parameters?.stateTown && parameters?.status) {
-      url = `/api/clientes?stateTown=${encodeURIComponent(parameters.stateTown)}&status=${encodeURIComponent(parameters.status)}`; 
+    if (parameters?.salesOfficesIDs) {
+      url = `/api/clientes?salesOfficesIDs=${encodeURIComponent(parameters?.salesOfficesIDs)}`; 
     }
 
     console.log('[loadCustomers] GET', url);

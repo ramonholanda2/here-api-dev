@@ -21,12 +21,14 @@ export function addMarker(state, coords, color, title, customerID) {
 
 export function clearMarkers(state) {
   if (state.markers && state.markers.length) {
-    state.markers.forEach(m => state.map.removeObject(m));
+    state.markers.forEach(m => {
+      if (m.marker && m.marker instanceof H.map.Object) {
+        state.map.removeObject(m.marker);
+      }
+    });
   }
   state.markers = [];
 }
-
-
 
 export function updateMarkerVisibility(state, filteredCustomers) {
   const visibleIds = new Set(filteredCustomers.map(customer => customer.CustomerInternalID));

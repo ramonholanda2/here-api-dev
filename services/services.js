@@ -26,6 +26,7 @@ async function getEmployeeInfo(employeeID) {
 }
 
 async function getCustomers(queryOptions) {
+    console.log('queryOptions', queryOptions);
   try {
     let customers = [];
 
@@ -39,9 +40,10 @@ async function getCustomers(queryOptions) {
       customers = await findCustomersBySalesOffice(orgUnitIds);
     }
 
-    if (queryOptions.stateTown && queryOptions.status) {
-      customers = await findCustomersByStateTown(queryOptions.stateTown, queryOptions.status);
-
+    if(queryOptions.salesOfficesIDs) {
+      const orgUnitIds = queryOptions.salesOfficesIDs.split(',');
+      console.log('orgUnitIds', orgUnitIds);
+      customers = await findCustomersBySalesOffice(orgUnitIds);
     }
 
     return customers;
@@ -51,7 +53,6 @@ async function getCustomers(queryOptions) {
     return { erro: true, mensagem: 'Falha ao buscar clientes por Sales Office.', detalhes: err?.message };
   }
 }
-
 
 
 async function findCustomersByStateTown(stateTown, status) {
@@ -166,6 +167,7 @@ async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesID
 
 
 async function findCustomersBySalesOffice(orgUnitIds = []) {
+
   if (!orgUnitIds.length) return [];
 
   const base = process.env.CUSTOMER_ODATA_PATH;
