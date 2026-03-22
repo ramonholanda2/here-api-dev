@@ -40,5 +40,5 @@ export function updateMarkerVisibility(state, filteredCustomers) {
 
 export function centerMapInMarker(data) {
   console.log('centerMapInMarker', data);
-  state.map.getViewModel().setLookAtData(data, false);
+  state.map.getViewModel().setLookAtData(data, 2.6);
 }

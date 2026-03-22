@@ -3,6 +3,15 @@ import { apiKey, state } from './config.js';
 import { renderCustomers } from './filters.js';
 import { showToast } from './util.js';
 
+export async function getSalesOffices() {
+  const params = new URLSearchParams(window.location.search);
+  const employeeID = params.get('employeeID');
+
+  const { data } = await axios.get(`/api/escritorios?employeeID=${employeeID}`);
+
+  return data;
+}
+
 export async function loadCustomers(parameters) {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -21,6 +30,12 @@ export async function loadCustomers(parameters) {
 
     console.log('[loadCustomers] GET', url);
     const { data } = await axios.get(url);
+
+    const clientList = document.getElementById("clientList");
+    if (clientList) {
+      clientList.innerHTML = "";
+      document.querySelector('.loading')?.classList.remove('loading');
+    }
 
     const list =
       Array.isArray(data) ? data
@@ -44,12 +59,8 @@ export async function loadCustomers(parameters) {
   }
 }
 
-export function initApp() {
-  const clientList = document.getElementById("clientList");
-  if (clientList) {
-    clientList.innerHTML = "";
-    document.querySelector('.loading')?.classList.remove('loading');
-  }
+export async function initApp() {
+  
 
   state.platform = new H.service.Platform({ apikey: apiKey });
   const defaultLayers = state.platform.createDefaultLayers();

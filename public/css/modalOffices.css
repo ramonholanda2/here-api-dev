@@ -1,0 +1,137 @@
+/* Overlay */
+.sap-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: sapFadeIn 0.2s ease;
+}
+
+.sap-modal.active { display: flex; }
+
+@keyframes sapFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Container extra grande */
+.sap-modal-container {
+  width: 1000px;           /* tamanho desktop aumentado */
+  max-width: 95%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.06),
+    0 12px 32px rgba(0,0,0,0.25);
+  font-family: "72", "72full", Arial, sans-serif;
+  overflow: hidden;
+  transform: scale(0.96);
+  animation: sapScaleIn 0.2s ease forwards;
+}
+
+@keyframes sapScaleIn { to { transform: scale(1); } }
+
+/* Header */
+.sap-modal-header {
+  background: #f7f7f7;
+  padding: 16px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #32363a;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Botão fechar */
+.sap-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #6a6d70;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+.sap-close-btn:hover { background: #eaecee; }
+
+/* Content */
+.sap-modal-content {
+  padding: 16px 20px;
+  max-height: 450px;   /* maior altura */
+  overflow-y: auto;
+}
+
+/* Table Fiori */
+.sap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sap-table th, .sap-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.sap-table th { font-weight: 600; background: #f7f7f7; }
+.sap-table tr:hover { background: #f5faff; }
+
+.sap-table input[type="checkbox"] {
+  accent-color: #0a6ed1;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Footer */
+.sap-modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Botões */
+.sap-btn {
+  min-width: 80px;
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  font-size: 14px;
+  color: #32363a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sap-btn:hover { background: #f4f6f8; }
+.sap-btn:active { background: #eaecee; }
+
+.sap-btn-primary {
+  background: #0a6ed1;
+  color: #fff;
+  border: none;
+}
+.sap-btn-primary:hover { background: #085caf; }
+.sap-btn-primary:active { background: #084a8c; }
+
+/* === RESPONSIVO === */
+/* Tablet */
+@media (max-width: 1024px) {
+  .sap-modal-container { width: 90%; max-width: 700px; }
+  .sap-modal-content { max-height: 380px; }
+  .sap-table th, .sap-table td { padding: 6px 10px; font-size: 13px; }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .sap-modal-container { width: 95%; max-width: 95%; border-radius: 10px; }
+  .sap-modal-content { max-height: 250px; padding: 12px 14px; }
+  .sap-table th, .sap-table td { padding: 5px 8px; font-size: 12px; }
+  .sap-modal-footer { flex-direction: column; gap: 6px; }
+  .sap-btn { width: 100%; min-width: auto; }
+}

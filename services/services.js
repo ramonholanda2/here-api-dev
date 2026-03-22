@@ -29,7 +29,7 @@ async function getCustomers(queryOptions) {
   try {
     let customers = [];
 
-    if(queryOptions.employeeID) {
+    if (queryOptions.employeeID) {
       const orgUnitIds = await findOrganisationalUnitEmployees(queryOptions.employeeID);
 
       if (!orgUnitIds.length) {
@@ -39,9 +39,9 @@ async function getCustomers(queryOptions) {
       customers = await findCustomersBySalesOffice(orgUnitIds);
     }
 
-    if(queryOptions.stateTown && queryOptions.status) {
+    if (queryOptions.stateTown && queryOptions.status) {
       customers = await findCustomersByStateTown(queryOptions.stateTown, queryOptions.status);
-      
+
     }
 
     return customers;
@@ -56,7 +56,7 @@ async function getCustomers(queryOptions) {
 
 async function findCustomersByStateTown(stateTown, status) {
   const base = process.env.CUSTOMER_ODATA_PATH;
-  if(!base) return [];
+  if (!base) return [];
 
   const url = `${base}?$format=json&$filter=${encodeURI("CREGION_CODE eq '" + stateTown + "'")}${encodeURI(" and CVARIATUSROOT47DABF57C1EE435F eq '" + status + "'")}&$top=99999`;
 
@@ -100,7 +100,37 @@ async function findCustomersByStateTown(stateTown, status) {
   }
 }
 
-async function findOrganisationalUnitEmployees(businessPartnerId) {
+
+async function getSalesOffices(queryOptions) {
+
+  if (queryOptions.employeeID) {
+    const response = await findOrganisationalUnitEmployees(queryOptions.employeeID, true);
+    if (response.length > 0) {
+      return { haveOfficesByEmployee: true, offices: response };
+    }
+  }
+
+  const pathAllOffices = "/sap/c4c/odata/v1/c4codataapi/OrganisationalUnitFunctionsCollection"
+    + "?$filter=SalesOfficeIndicator eq true and OrganisationalUnit/LifeCycleStatusCode eq '2'"
+    + "&$expand=OrganisationalUnit,OrganisationalUnit/OrganisationalUnitNameAndAddress&$select=OrganisationalUnitID,OrganisationalUnit/OrganisationalUnitNameAndAddress/Name"
+    + "&$format=json";
+
+  console.log('pathAllOffices', pathAllOffices);
+
+  const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+  const allOffices = await executeHttpRequest(
+    destination,
+    { method: "GET", url: pathAllOffices }
+  );
+
+  const results = allOffices?.data?.d?.results || [];
+
+  const salesOffices = results.map(office => ({ OrgUnitID: office.OrganisationalUnitID, Name: office.OrganisationalUnit.OrganisationalUnitNameAndAddress[0].Name }));
+
+  return { haveOfficesByEmployee: false, offices: salesOffices };
+}
+
+async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesIDs = false) {
 
   const base = `/sap/c4c/odata/cust/v1/organisational_unit_employee/OrganisationalUnitEmployeeAssignmentCollection`;
   const url = `${base}?$format=json&$filter=EmployeeID eq '${businessPartnerId}'`;
@@ -114,6 +144,11 @@ async function findOrganisationalUnitEmployees(businessPartnerId) {
     );
 
     const results = response?.data?.d?.results || [];
+    console.log('findOrganisationalUnitEmployees', results);
+
+    if (onlyAndNamesIDs) {
+      return results.map(office => ({OrgUnitID: office.OrgUnitID, Name: office.Name}) );
+    }
 
     const ids = Array.from(
       new Set(
@@ -132,9 +167,9 @@ async function findOrganisationalUnitEmployees(businessPartnerId) {
 
 async function findCustomersBySalesOffice(orgUnitIds = []) {
   if (!orgUnitIds.length) return [];
-  
+
   const base = process.env.CUSTOMER_ODATA_PATH;
-  if(!base) return [];
+  if (!base) return [];
 
   const filterOrgQuery = orgUnitIds
     .map(id => `CSALES_OFFICE_UUID eq '${String(id).replace(/'/g, "''")}'`)
@@ -265,5 +300,6 @@ export {
   getEmployeeInfo,
   getCustomers,
   createRoute,
-  getRedirectUrl
+  getRedirectUrl,
+  getSalesOffices
 }

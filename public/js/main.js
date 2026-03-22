@@ -1,6 +1,6 @@
 // public/js/main.js
 import { state, hydrateEmployeeFieldFromQuery } from './config.js';
-import { initApp, loadCustomers } from './init.js';
+import { getSalesOffices, initApp, loadCustomers } from './init.js';
 import { optimizeRoute, clearRoute } from './routing.js';
 import { openFormRoute, saveRoute, closeFormRoute, clearFormRoute } from './form-route.js';
 import {
@@ -16,12 +16,26 @@ import { applyFiltersAndRender, renderCustomers, toggleShowSelected } from './fi
 import { validateRouteForm } from './route-form-validate.js';
 import { showToast } from './util.js';
 import { deselectAllCustomers } from './customers.js';
+import { closeOfficesModal, openOfficesModal } from './modal-offices.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   //hydrateEmployeeFieldFromQuery();
   setupFiltersToggle();
 
-  initApp()
+  await initApp()
+
+  await getSalesOffices().then((salesOffices) => {
+    const btnOffices = document.getElementById("btnOffices");
+
+    btnOffices.textContent = salesOffices.haveOfficesByEmployee
+      ? "Ver Escritórios"
+      : "Selecionar Escritórios";
+
+    btnOffices.onclick = () => openOfficesModal(salesOffices.haveOfficesByEmployee, salesOffices.offices);
+
+  }).catch((error) => {
+    console.log('error', error)
+  });
 
   await loadCustomers().then(() => {
     renderCustomers()
@@ -32,6 +46,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     openFormRoute(state);
     hidePolygonActions();
     hidePolygonInstructions();
+  });
+  const closeModalOffices = document.getElementsByClassName('closeModal');
+  Array.from(closeModalOffices).forEach(item => {
+    item.addEventListener('click', () => {
+      closeOfficesModal();
+    });
   });
 
   document.getElementById('btnSelectArea')?.addEventListener('click', () => enablePolygonSelection(state, 'triangle'));
@@ -78,6 +98,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnSaveForm?.addEventListener('click', (e) => {
     const { valid, errors } = validateRouteForm();
     if (!valid) {
+      btnSaveForm.disabled = true;
+      setTimeout(() => {
+        btnSaveForm.disabled = false;
+      }, 1500);
       e.preventDefault();
       errors.forEach(err => showToast(err, 'error'));
       return;
@@ -97,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const cancel = () => { closeFormRoute(); clearFormRoute(); };
   document.getElementById('btnCancelForm')?.addEventListener('click', e => {
     if (state.isShowPolygonActions == true) showPolygonActions()
-      console.log('state.showPolygonActions', state.isShowPolygonActions)
+    console.log('state.showPolygonActions', state.isShowPolygonActions)
     cancel();
   });
   document.getElementById('btnCloseForm')?.addEventListener('click', e => {
