@@ -62,7 +62,6 @@ function limitSelection(max = 2) {
   });
 }
 
-
 export function getSelectedOffices() {
   const checked = document.querySelectorAll("#officesTable input[type='checkbox']:checked");
   return Array.from(checked).map(cb => {

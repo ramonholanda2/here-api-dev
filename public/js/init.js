@@ -43,7 +43,6 @@ export async function loadCustomers(parameters) {
 
     if (!list.length) {
       console.warn('[loadCustomers] Nenhum cliente retornado. Resposta:', data);
-      showToast('Nenhum cliente retornado, por favor preencha no filtro o estado e a classificação.', 'error', 5000);
     }
 
     console.log('[loadCustomers] clientes', list);

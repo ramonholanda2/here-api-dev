@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   await getSalesOffices().then((salesOffices) => {
     const btnOffices = document.getElementById("btnOffices");
 
+    if (!salesOffices.haveOfficesByEmployee) {
+      showToast('Nenhum escritório vinculado ao usuário, por favor selecione e tente novamente.', 'error', 5000);
+    }
+
     btnOffices.textContent = salesOffices.haveOfficesByEmployee
       ? "Ver Escritórios"
       : "Selecionar Escritórios";
@@ -148,16 +152,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById("btnToggleSelected").textContent = state.showOnlySelected ? "Mostrar todos" : "Clientes Selecionados";
   };
 
+
   document.getElementById("btnSearchOffices").onclick = async () => {
-    const selectedOffices = getSelectedOffices();
+    const loader = document.getElementById("officesLoading");
+    loader.classList.remove("hidden"); // mostra o loading
 
-    const officeIds = selectedOffices.map(office => office.OrgUnitID);
-    clearMarkers(state);
-    await loadCustomers({ salesOfficesIDs: officeIds.join(',') }).then(renderCustomers);
+    try {
+      const selectedOffices = getSelectedOffices();
+      const officeIds = selectedOffices.map(office => office.OrgUnitID);
 
+      clearMarkers(state);
+      await loadCustomers({ salesOfficesIDs: officeIds.join(',') }).then(renderCustomers);
 
-    closeOfficesModal();
+      closeOfficesModal();
+
+    } finally {
+      loader.classList.add("hidden"); // esconde o loading mesmo se der erro
+    }
   };
+
 
   /* 
     if (state.allCustomers.length === 0) {

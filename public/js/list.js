@@ -63,7 +63,7 @@ export function renderCustomerList(state, customers) {
       var locationData =
       {
         position: { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, 
-        zoom: 16,               
+        zoom: 18,               
         tilt: 0,                
         heading: 180            
       }
