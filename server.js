@@ -3,7 +3,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const cors = require('cors');
-const { getCustomers, getEmployeeInfo, createRoute, getRedirectUrl, getSalesOffices } = require('./services/services');
+const { getCustomers, getEmployeeInfo, createRoute, getRedirectUrl, getSalesOffices, getRedirectSalesCloudURL } = require('./services/services');
 
 const hasVcap = !!process.env.VCAP_SERVICES;
 console.log("Is Env CF: ", hasVcap)
@@ -32,7 +32,14 @@ app.post('/api/rotas', async (req, res, next) => {
     next(err);
   }
 });
-
+app.get('/api/salescloud/url', async (req, res, next) => {
+  try {
+    const redirectUrl = await getRedirectSalesCloudURL();
+    return res.send(encodeURIComponent(redirectUrl));
+  } catch (error) {
+    next(error);
+  }
+});
 app.get('/api/rotas/redirecionar/:routeUUID', async (req, res, next) => {
   try {
     const routeUUID = req.params.routeUUID;
@@ -47,7 +54,7 @@ app.get('/api/clientes', async (req, res, next) => {
   try {
 
     console.log("query", req.query);
-    if(!req.query.employeeID && !req.query.salesOfficesIDs) return res.json([]);
+    if (!req.query.employeeID && !req.query.salesOfficesIDs) return res.json([]);
 
     var customers = await getCustomers(req.query);
     console.log("query", req.query);

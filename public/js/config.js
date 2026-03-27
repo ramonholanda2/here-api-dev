@@ -11,6 +11,7 @@ export const statusColors = {
 };
 
 export const state = {
+  salesCloudURL: null,
   allCustomers: [],
   showOnlySelected: false,
   isShowPolygonActions: false,
@@ -19,9 +20,9 @@ export const state = {
   ui: null,
   router: null,
   markers: [],
+  clusterLayer: null,
   routeLine: null,
   currentRoute: null,
-
   // Seleção poligonal
   polygonSelectionMode: false,
   selectionShape: "",

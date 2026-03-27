@@ -3,6 +3,7 @@ import { statusColors } from './config.js';
 import { addMarker, centerMapInMarker } from './markers.js';
 import { getSelectedClients } from './customers.js';
 import { drawRoute, clearRoute } from './routing.js';
+import { createClusterLayer } from './clusters.js';
 
 /**
  * Renderiza a lista (e adiciona marcadores) dos clientes recebidos.
@@ -11,14 +12,14 @@ import { drawRoute, clearRoute } from './routing.js';
  */
 export function renderCustomerList(state, customers) {
   const clientList = document.getElementById("clientList");
-  clientList.innerHTML = ''; // limpa a área antes de recriar
+  clientList.innerHTML = '';
 
   const gridContainer = document.createElement("div");
   gridContainer.className = "clients-grid";
 
   customers.forEach((customer, index) => {
     const color = statusColors[customer.Z_Classificao_KUT] || "green";
-    addMarker(state, { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, color, customer.CustomerName, customer.CustomerInternalID);
+    //addMarker(state, { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, color, customer.CustomerName, customer.CustomerInternalID);
 
     const item = document.createElement("div");
     item.className = "client-item";
@@ -62,10 +63,10 @@ export function renderCustomerList(state, customers) {
     location.addEventListener('click', (e) => {
       var locationData =
       {
-        position: { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, 
-        zoom: 18,               
-        tilt: 0,                
-        heading: 180            
+        position: { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure },
+        zoom: 18,
+        tilt: 0,
+        heading: 180
       }
 
       centerMapInMarker(locationData)
@@ -81,5 +82,17 @@ export function renderCustomerList(state, customers) {
   });
 
   clientList.appendChild(gridContainer);
+
+  if (state.clusterLayer) {
+    state.map.removeLayer(state.clusterLayer);
+  }
+
+  if (customers.length > 0) {
+
+    console.log('createClusterLayer', customers, state)
+    
+    state.clusterLayer = createClusterLayer(customers, state);
+    state.map.addLayer(state.clusterLayer);
+  }
 }
 ``

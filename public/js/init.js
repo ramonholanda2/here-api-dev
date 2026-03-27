@@ -14,6 +14,10 @@ export async function getSalesOffices() {
 
 export async function loadCustomers(parameters) {
   try {
+
+    const { data: urlSalesCloud } = await axios.get("/api/salescloud/url");
+    state.salesCloudURL = urlSalesCloud;
+
     const params = new URLSearchParams(window.location.search);
     const employeeID = params.get('employeeID');
 
@@ -23,9 +27,9 @@ export async function loadCustomers(parameters) {
       url = `/api/clientes?employeeID=${encodeURIComponent(employeeID)}`
     }
     if (parameters?.salesOfficesIDs) {
-      url = `/api/clientes?salesOfficesIDs=${encodeURIComponent(parameters?.salesOfficesIDs)}`; 
+      url = `/api/clientes?salesOfficesIDs=${encodeURIComponent(parameters?.salesOfficesIDs)}`;
     }
-
+    
     console.log('[loadCustomers] GET', url);
     const { data } = await axios.get(url);
 
@@ -57,7 +61,7 @@ export async function loadCustomers(parameters) {
 }
 
 export async function initApp() {
-  
+
 
   state.platform = new H.service.Platform({ apikey: apiKey });
   const defaultLayers = state.platform.createDefaultLayers();
@@ -67,10 +71,18 @@ export async function initApp() {
     defaultLayers.vector.normal.map,
     {
       center: { lat: -24.5, lng: -52 },
-      zoom: 5,
+      zoom: 6,
       pixelRatio: window.devicePixelRatio || 1
     }
   );
+
+  state.map.getViewModel().addEventListener("sync", function () {
+    const zoom = state.map.getZoom();
+    const maxZoomOut = 5.5;
+    if (zoom < maxZoomOut) {
+      state.map.setZoom(maxZoomOut); // smooth
+    }
+  });
 
   window.addEventListener("resize", () => state.map.getViewPort().resize());
   new H.mapevents.Behavior(new H.mapevents.MapEvents(state.map));

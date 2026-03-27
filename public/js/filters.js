@@ -1,4 +1,5 @@
 // public/js/filters.js
+import { createClusterLayer } from './clusters.js';
 import { state } from './config.js';
 import { getSelectedClients } from './customers.js';
 import { renderCustomerList } from './list.js';
@@ -136,39 +137,32 @@ export function getCustomersFiltered() {
   return filterCustomers(state.allCustomers, getFiltersFromUI());
 }
 
+
 export function applyFiltersAndRender(showOnlySelected = false) {
   const filters = getFiltersFromUI();
-  //localStorage.setItem('clientes_filtros_v1', JSON.stringify(filters));
-
   let filtered = filterCustomers(state.allCustomers, filters);
 
-  if(showOnlySelected){
-    
-  const selected = getSelectedClients(state);
+  if (showOnlySelected) {
+    const selected = getSelectedClients(state);
     const selectedIds = new Set(selected.map(c => String(c.CustomerInternalID)));
-
-    filtered = filtered.filter(c =>
-      selectedIds.has(String(c.CustomerInternalID))
-    );
+    filtered = filtered.filter(c => selectedIds.has(String(c.CustomerInternalID)));
   }
 
   const filteredIds = new Set(filtered.map(c => String(c.CustomerInternalID)));
 
-  updateMarkerVisibility(state, filtered);
+  if (state.clusterLayer) {
+    state.map.removeLayer(state.clusterLayer);
+  }
+  state.clusterLayer = createClusterLayer(filtered, state);
+  state.map.addLayer(state.clusterLayer);
 
-  // mostrar/esconder itens existentes sem recriar DOM
   document.querySelectorAll('.client-item').forEach(item => {
     const checkbox = item.querySelector('.client-checkbox');
     const id = checkbox?.dataset.id;
 
-    if (filteredIds.has(id)) {
-      item.style.display = "";
-    } else {
-      item.style.display = "none"; // esconde mas NÃO mexe no checked
-    }
+    item.style.display = filteredIds.has(id) ? "" : "none";
   });
 
-  // atualiza contador
   const info = document.querySelector('.header-info');
   if (info) info.textContent = `Mostrando ${filtered.length} de ${state.allCustomers.length}`;
 }
