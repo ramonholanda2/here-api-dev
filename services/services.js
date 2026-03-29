@@ -90,19 +90,27 @@ async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesID
   const base = `/sap/c4c/odata/cust/v1/organisational_unit_employee/OrganisationalUnitEmployeeAssignmentCollection`;
   const url = `${base}?$format=json&$filter=EmployeeID eq '${businessPartnerId}'`;
 
-
   try {
     const destination = await getDestination({ destinationName: "SALES_CLOUD" });
-    const response = await executeHttpRequest(
-      destination,
-      { method: "GET", url: url }
-    );
+    const response = await executeHttpRequest(destination, { method: "GET", url });
 
     const results = response?.data?.d?.results || [];
     console.log('findOrganisationalUnitEmployees', results);
 
     if (onlyAndNamesIDs) {
-      return results.map(office => ({ OrgUnitID: office.OrgUnitID, Name: office.Name }));
+      const uniqueMap = new Map();
+      results.forEach(office => {
+        if (office.OrgUnitID) {
+          if (!uniqueMap.has(office.OrgUnitID)) {
+            uniqueMap.set(office.OrgUnitID, {
+              OrgUnitID: office.OrgUnitID,
+              Name: office.Name
+            });
+          }
+        }
+      });
+
+      return Array.from(uniqueMap.values());
     }
 
     const ids = Array.from(
@@ -112,13 +120,14 @@ async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesID
           .filter(Boolean)
       )
     );
+
     return ids;
+
   } catch (err) {
     console.error('findOrganisationalUnitEmployees error:', err);
     throw new Error(err);
   }
 }
-
 
 async function findCustomersBySalesOffice(orgUnitIds = []) {
 
