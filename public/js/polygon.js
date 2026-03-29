@@ -386,6 +386,7 @@ export function selectClientsInPolygon(state) {
   customersFiltered.forEach(customer => {
     const point = { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure };
     if (isPointInPolygon(point, polygon)) {
+      state.selectedCustomers.set(customer.CustomerInternalID, customer);
       const checkbox = document.querySelector(`.client-checkbox[data-id="${customer.CustomerInternalID}"]`);
       if (checkbox) {
         checkbox.checked = true;

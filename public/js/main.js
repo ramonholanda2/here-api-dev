@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById("btnToggleSelected").onclick = () => {
     toggleShowSelected(state);
 
-    document.getElementById("btnToggleSelected").textContent = state.showOnlySelected ? "Mostrar todos" : "Clientes Selecionados";
+    document.getElementById("btnToggleSelected").textContent = state.showOnlySelected ? "Clientes do escritório" : "Clientes Selecionados";
   };
 
 
@@ -187,6 +187,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tr = btn.closest("tr");
     if (tr) tr.remove();
+    
+    state.selectedCustomers.delete(id);
 
     const checkbox = document.querySelector(`.client-checkbox[data-id="${id}"]`);
     if (checkbox) {

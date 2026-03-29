@@ -139,32 +139,31 @@ export function getCustomersFiltered() {
 
 
 export function applyFiltersAndRender(showOnlySelected = false) {
-  const filters = getFiltersFromUI();
-  let filtered = filterCustomers(state.allCustomers, filters);
+
+  let customersToRender;
 
   if (showOnlySelected) {
-    const selected = getSelectedClients(state);
-    const selectedIds = new Set(selected.map(c => String(c.CustomerInternalID)));
-    filtered = filtered.filter(c => selectedIds.has(String(c.CustomerInternalID)));
+    const filters = getFiltersFromUI();
+    const customersSelected = Array.from(state.selectedCustomers.values());
+    customersToRender = filterCustomers(customersSelected, filters);
+    
+  } else {
+    const filters = getFiltersFromUI();
+    //const customersSelected = Array.from(state.selectedCustomers.values());
+    customersToRender = filterCustomers(state.allCustomers, filters);
   }
 
-  const filteredIds = new Set(filtered.map(c => String(c.CustomerInternalID)));
+  renderCustomerList(state, customersToRender);
 
   if (state.clusterLayer) {
     state.map.removeLayer(state.clusterLayer);
   }
-  state.clusterLayer = createClusterLayer(filtered, state);
+
+  state.clusterLayer = createClusterLayer(customersToRender, state);
   state.map.addLayer(state.clusterLayer);
 
-  document.querySelectorAll('.client-item').forEach(item => {
-    const checkbox = item.querySelector('.client-checkbox');
-    const id = checkbox?.dataset.id;
-
-    item.style.display = filteredIds.has(id) ? "" : "none";
-  });
-
   const info = document.querySelector('.header-info');
-  if (info) info.textContent = `Mostrando ${filtered.length} de ${state.allCustomers.length}`;
+  if (info) info.textContent = `Mostrando ${customersToRender.length}`;
 }
 
 

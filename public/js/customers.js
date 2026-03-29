@@ -2,13 +2,11 @@ import { applyFiltersAndRender, getCustomersFiltered } from "./filters.js";
 
 // js/customers.js
 export function getSelectedClients(state) {
-  const checkboxes = document.querySelectorAll('.client-checkbox');
-  return Array.from(checkboxes)
-    .filter(cb => cb.checked)
-    .map(cb => state.allCustomers.find(c => c.CustomerInternalID == cb.dataset.id));
+  return Array.from(state.selectedCustomers.values());
 }
 
 export function deselectAllCustomers(state) {
+  state.selectedCustomers.clear();
   const checkboxes = document.querySelectorAll('.client-checkbox');
 
   checkboxes.forEach(cb => {

@@ -13,6 +13,7 @@ export const statusColors = {
 export const state = {
   salesCloudURL: null,
   allCustomers: [],
+  selectedCustomers: new Map(),
   showOnlySelected: false,
   isShowPolygonActions: false,
   map: null,

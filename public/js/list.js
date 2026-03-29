@@ -19,7 +19,6 @@ export function renderCustomerList(state, customers) {
 
   customers.forEach((customer, index) => {
     const color = statusColors[customer.Z_Classificao_KUT] || "green";
-    //addMarker(state, { lat: customer.LatitudeMeasure, lng: customer.LongitudeMeasure }, color, customer.CustomerName, customer.CustomerInternalID);
 
     const item = document.createElement("div");
     item.className = "client-item";
@@ -46,7 +45,22 @@ export function renderCustomerList(state, customers) {
     address.className = "client-address";
     address.textContent = customer.FormattedPostalAddressDescription;
 
+    checkbox.checked = state.selectedCustomers.has(customer.CustomerInternalID);
+    item.classList.toggle('selected', checkbox.checked);
+
     checkbox.addEventListener("change", (e) => {
+
+      const id = customer.CustomerInternalID;
+
+      if (e.target.checked) {
+        state.selectedCustomers.set(id, customer);
+      } else {
+        state.selectedCustomers.delete(id);
+      }
+
+
+      
+
       item.classList.toggle('selected', e.target.checked);
       const selected = getSelectedClients(state);
       if (selected.length >= 2) {
@@ -90,7 +104,7 @@ export function renderCustomerList(state, customers) {
   if (customers.length > 0) {
 
     console.log('createClusterLayer', customers, state)
-    
+
     state.clusterLayer = createClusterLayer(customers, state);
     state.map.addLayer(state.clusterLayer);
   }
