@@ -17,11 +17,12 @@ export async function openFormRoute(state) {
   const { data } = await axios.get(`/api/empregado?employeeID=${employeeID}`);
 
   const organizerInput = document.getElementById('routeOrganizer');
-  const ownerInput = document.getElementById('routeOwner');
-  if (!organizerInput || !ownerInput) return;
+
+  document.getElementById("routeOwner").dataset.id = data?.EmployeeID;
+  document.getElementById("routeOwnerName").textContent = data?.name;
+
 
   organizerInput.value = data?.name || '';
-  ownerInput.value = data?.name || '';
 
   const tableTitle = document.getElementById('section-title');
   if (tableTitle) {
@@ -38,37 +39,20 @@ export async function openFormRoute(state) {
   });
 
 
-  document.addEventListener("click", (ev) => {
-    const btn = ev.target.closest(".remove-selected-client");
-    if (!btn) return;
-
-    const id = btn.dataset.id;
-
-    const tr = btn.closest("tr");
-    if (tr) tr.remove();
-
-    const checkbox = document.querySelector(`.client-checkbox[data-id="${id}"]`);
-    if (checkbox) {
-      checkbox.checked = false;
-
-      checkbox.closest(".client-item")?.classList.remove("selected");
-    }
-  });
 }
-
-export function updateSelectedCustomersTable() {
-  const tbody = document.querySelector("#tableCustomers tbody");
+export function renderEmployeesTable(list) {
+  const tbody = document.querySelector("#employeesTable tbody");
   tbody.innerHTML = "";
 
-  state.selectedCustomers.forEach(c => {
+  list.forEach(emp => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${c.CustomerInternalID}</td>
-      <td>${c.CustomerName}</td>
-      <td>${c.FullAddress}</td>
-      <td class="remove-cell">
-        <button class="remove-selected-client" data-id="${c.CustomerInternalID}">✕</button>
+      <td class="employee-name">${emp.BusinessPartnerFormattedName}</td>
+      <td><button class="select-employee"
+                 data-id="${emp.EmployeeID}"
+                 data-name="${emp.BusinessPartnerFormattedName}">
+                 Selecionar</button>
       </td>
     `;
 
@@ -125,7 +109,8 @@ export async function saveRoute(state) {
 
   const params = new URLSearchParams(window.location.search);
   const employeeID = params.get("employeeID");
-
+  const ownerID = document.getElementById("routeOwner").dataset.id;
+  console.log('ownerID', ownerID);
   const payload = {
     Name: nameRoute || "Nova Rota",
     RouteTypeCode: "2",
@@ -137,7 +122,7 @@ export async function saveRoute(state) {
     Status: "2",
     ProcessingStatus: "1",
     VisitTypeCode: typeVisit.value,
-    OwnerPartyID: employeeID,
+    OwnerPartyID: ownerID,
     OrganizerPartyID: employeeID,
     RouteAccount: routeAccounts,
     Z_TipoVisita_KUT: `${typeVisit.value} - ${typeVisitDesc}`,
@@ -160,13 +145,8 @@ export async function saveRoute(state) {
           window.open(linkRouteCreated, '_blank')?.focus();
         }, timeMessageMS + 500);
 
-
-        /*  const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
-         const response = await axios.get(url)
-         const linkRouteCreated = decodeURIComponent(response.data);
-         console.log(linkRouteCreated)
-         window.open(linkRouteCreated, '_blank')?.focus(); */
       })
+
     closeFormRoute();
     clearFormRoute();
     clearRoute(state);
@@ -184,4 +164,3 @@ export function clearFormRoute() {
   document.querySelectorAll('.days-week input[type="checkbox"]').forEach(cb => cb.checked = false);
   document.querySelector('#tableCustomers tbody').innerHTML = '';
 }
-``

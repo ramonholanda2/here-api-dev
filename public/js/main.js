@@ -2,7 +2,7 @@
 import { state } from './config.js';
 import { getSalesOffices, initApp, loadCustomers } from './init.js';
 import { optimizeRoute, clearRoute } from './routing.js';
-import { openFormRoute, saveRoute, closeFormRoute, clearFormRoute } from './form-route.js';
+import { openFormRoute, saveRoute, closeFormRoute, clearFormRoute, renderEmployeesTable } from './form-route.js';
 import {
   enablePolygonSelection,
   clearPolygonSelection,
@@ -15,7 +15,7 @@ import { setupFiltersToggle } from './filters-toggle.js';
 import { applyFiltersAndRender, renderCustomers, toggleShowSelected } from './filters.js';
 import { validateRouteForm } from './route-form-validate.js';
 import { showToast } from './util.js';
-import { deselectAllCustomers } from './customers.js';
+import { deselectAllCustomers, getSelectedClients } from './customers.js';
 import { closeOfficesModal, getSelectedOffices, openOfficesModal } from './modal-offices.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -126,14 +126,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (state.isShowPolygonActions == true) showPolygonActions()
     const title = document.getElementById('section-title');
 
-    title.innerText = 'Clientes';
+    title.innerText = 'Clientes selecionados';
 
     cancel();
   });
   document.getElementById('btnCloseForm')?.addEventListener('click', e => {
     const title = document.getElementById('section-title');
 
-    title.innerText = 'Clientes';
+    title.innerText = 'Clientes selecionados';
 
     if (state.isShowPolygonActions == true) showPolygonActions()
     cancel();
@@ -147,8 +147,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     applyFiltersAndRender(state);
   });
-
-  console.log('state.allCustomers', state.allCustomers.length)
 
   document.getElementById("btnToggleSelected").onclick = () => {
     toggleShowSelected(state);
@@ -177,5 +175,82 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filterBTN = document.getElementById("applyFiltersBtn");
   filterBTN?.addEventListener("click", () => {
     applyFiltersAndRender(state.showOnlySelected);
+  });
+
+  const tbodyCustomers = document.querySelector("#tableCustomers tbody");
+
+  tbodyCustomers.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".remove-selected-client");
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+
+    const tr = btn.closest("tr");
+    if (tr) tr.remove();
+
+    const checkbox = document.querySelector(`.client-checkbox[data-id="${id}"]`);
+    if (checkbox) {
+      checkbox.checked = false;
+      checkbox.closest(".client-item")?.classList.remove("selected");
+    }
+
+    const customersSelected = getSelectedClients(state);
+    const tableTitle = document.getElementById('section-title');
+    if (tableTitle) {
+      tableTitle.innerHTML = `(${customersSelected.length}) Clientes selecionados`;
+    }
+
+    if (customersSelected.length === 0) {
+      showToast('Selecione pelo menos um cliente para criar uma rota.', 'error', 5000);
+      closeFormRoute();
+    }
+  });
+
+
+  document.getElementById("routeOwner")?.addEventListener("click", async () => {
+    const modal = document.getElementById("employeesModal");
+    const tbody = document.querySelector("#employeesTable tbody");
+
+    modal.classList.remove("hidden");
+    tbody.innerHTML = `<tr><td colspan="2">Carregando...</td></tr>`;
+
+    try {
+      const { data } = await axios.get("/api/empregados");
+
+      window._allEmployees = data;
+
+      renderEmployeesTable(data);
+
+    } catch (e) {
+      console.log(e);
+      tbody.innerHTML = `<tr><td colspan="2">Erro ao carregar empregados</td></tr>`;
+    }
+  });
+
+  document.addEventListener("click", ev => {
+    const btn = ev.target.closest(".select-employee");
+    if (!btn) return;
+
+    document.getElementById("routeOwner").dataset.id = btn.dataset.id;
+    document.getElementById("routeOwnerName").textContent = btn.dataset.name;
+
+    document.getElementById("employeesModal").classList.add("hidden");
+  });
+
+  document.querySelectorAll(".closeEmployeesModal").forEach(el => {
+    el.addEventListener("click", () => {
+      document.getElementById("employeesModal").classList.add("hidden");
+    });
+  });
+
+
+  document.getElementById("employeeSearch")?.addEventListener("input", ev => {
+    const term = ev.target.value.toLowerCase().trim();
+
+    const filtered = window._allEmployees.filter(emp =>
+      emp.BusinessPartnerFormattedName.toLowerCase().includes(term)
+    );
+
+    renderEmployeesTable(filtered);
   });
 });

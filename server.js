@@ -3,7 +3,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const cors = require('cors');
-const { getCustomers, getEmployeeInfo, createRoute, getRedirectUrl, getSalesOffices, getRedirectSalesCloudURL } = require('./services/services');
+const { getCustomers, getEmployeeInfo, createRoute, getRedirectUrl, getSalesOffices, getRedirectSalesCloudURL, getAllEmployees } = require('./services/services');
 
 const hasVcap = !!process.env.VCAP_SERVICES;
 console.log("Is Env CF: ", hasVcap)

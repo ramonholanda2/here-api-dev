@@ -16,7 +16,8 @@ async function getEmployeeInfo(employeeID) {
     const data = response.data.d.results.map(employee => ({
       id: employee.UserID,
       name: employee.BusinessPartnerFormattedName,
-      BusinessPartnerID: employee.BusinessPartnerID
+      BusinessPartnerID: employee.BusinessPartnerID,
+      EmployeeID: employee.EmployeeID
     }));
     return data[0];
 

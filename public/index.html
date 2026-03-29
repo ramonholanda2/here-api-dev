@@ -22,6 +22,7 @@
   <link rel="stylesheet" type="text/css" href="/public/styles.css" />
   <link rel="stylesheet" type="text/css" href="/public/css/toast.css" />
   <link rel="stylesheet" type="text/css" href="/public/css/modalOffices.css" />
+  <link rel="stylesheet" type="text/css" href="/public/css/modalEmployees.css" />
   <reference types="heremaps" />
 </head>
 
@@ -253,10 +254,17 @@
             <label>Organizador</label>
             <input id="routeOrganizer" value="" readonly />
           </div>
+
+
           <div class="form-field">
             <label>Proprietário</label>
-            <input id="routeOwner" value="" readonly />
+            <div id="routeOwner" class="employee-select" data-id="">
+              <span id="routeOwnerName">Carregando...</span>
+              <span class="employee-select-icon">▾</span>
+            </div>
           </div>
+
+
         </div>
 
         <div class="form-field">
@@ -323,6 +331,42 @@
     </div>
   </div>
   <!-- modal sales offices  -->
+
+  <!-- modal employees  -->
+  <div id="employeesModal" class="horizon-modal hidden">
+
+
+    <div class="horizon-modal-content">
+
+      <div class="horizon-modal-header">
+        <span>Selecionar empregado</span>
+        <button class="horizon-modal-close closeEmployeesModal">✕</button>
+      </div>
+      <div class="employee-search-container">
+        <input type="text" id="employeeSearch" placeholder="Filtrar empregado..." />
+      </div>
+
+      <div class="horizon-modal-body">
+        <table id="employeesTable" class="horizon-table">
+          <thead>
+            <tr>
+              <th class="employee-name-th">Nome</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="horizon-modal-footer">
+        <button class="horizon-btn closeEmployeesModal">Fechar</button>
+      </div>
+
+    </div>
+  </div>
+  <!-- modal employees  -->
+
+  </div>
 
   <script type="module" src="/public/js/main.js"></script>
 </body>
