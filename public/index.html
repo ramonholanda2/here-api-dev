@@ -13,7 +13,7 @@
   <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-clustering.js"></script>
   <link rel="stylesheet" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
-  
+
 
   <!-- Axios (global) -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -96,6 +96,15 @@
               <input type="text" id="f_equipe" name="equipeVendas" placeholder="Ex.: Time A" autocomplete="on" />
             </div>
 
+
+            <!-- <button id="applyFiltersBtn" class="fiori-button filter-btn" type="button">
+              🔍 Filtrar
+            </button> -->
+
+            <!-- 
+              <label for="applyFilter">Filtrar</label>
+              <input type="text" id="f_equipe" name="equipeVendas" placeholder="Ex.: Time A" autocomplete="on" /> -->
+
             <!--  <div class="filter-field">
               <label for="f_pin">Cor do pin</label>
               <select id="f_pin" name="pin">
@@ -117,6 +126,10 @@
           <button id="btnDeselectAll" class="fiori-button" type="button" aria-expanded="true"
             aria-controls="filtersPanel" title="Desmarcar todos">
             Desmarcar todos
+          </button>
+
+          <button id="applyFiltersBtn" class="fiori-button filter-btn" type="button">
+            🔍 Filtrar
           </button>
 
           <button id="toggleFiltersBtn" class="fiori-button" type="button" aria-expanded="true"

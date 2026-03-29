@@ -1,5 +1,5 @@
 // public/js/main.js
-import { state, hydrateEmployeeFieldFromQuery } from './config.js';
+import { state } from './config.js';
 import { getSalesOffices, initApp, loadCustomers } from './init.js';
 import { optimizeRoute, clearRoute } from './routing.js';
 import { openFormRoute, saveRoute, closeFormRoute, clearFormRoute } from './form-route.js';
@@ -17,10 +17,8 @@ import { validateRouteForm } from './route-form-validate.js';
 import { showToast } from './util.js';
 import { deselectAllCustomers } from './customers.js';
 import { closeOfficesModal, getSelectedOffices, openOfficesModal } from './modal-offices.js';
-import { clearMarkers } from './markers.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  //hydrateEmployeeFieldFromQuery();
   setupFiltersToggle();
 
   await initApp()
@@ -141,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const form = document.getElementById('filtersPanel');
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
-    applyFiltersAndRender(state); // lê UI, salva local, filtra e renderiza
+    applyFiltersAndRender(state);
   });
 
   console.log('state.allCustomers', state.allCustomers.length)
@@ -155,31 +153,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById("btnSearchOffices").onclick = async () => {
     const loader = document.getElementById("officesLoading");
-    loader.classList.remove("hidden"); // mostra o loading
+    loader.classList.remove("hidden");
 
     try {
       const selectedOffices = getSelectedOffices();
       const officeIds = selectedOffices.map(office => office.OrgUnitID);
 
-      clearMarkers(state);
       await loadCustomers({ salesOfficesIDs: officeIds.join(',') }).then(renderCustomers);
 
       closeOfficesModal();
 
     } finally {
-      loader.classList.add("hidden"); // esconde o loading mesmo se der erro
+      loader.classList.add("hidden");
     }
   };
 
-  let listFieldsName = ['f_nome', 'f_status', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_regiao', 'f_equipe', 'f_pin', 'f_estado'];
-
-  listFieldsName.forEach(id => {
-    const el = document.getElementById(id);
-    //el?.addEventListener('change', ev => applyFiltersAndRender(state.showOnlySelected));
-    if (el?.tagName === 'INPUT') {
-      el.addEventListener('keyup', (ev) => {
-        if (ev.key === 'Enter') applyFiltersAndRender(state.showOnlySelected);
-      });
-    }
+  const filterBTN = document.getElementById("applyFiltersBtn");
+  filterBTN?.addEventListener("click", () => {
+    applyFiltersAndRender(state.showOnlySelected);
   });
 });

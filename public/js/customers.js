@@ -1,5 +1,4 @@
 import { applyFiltersAndRender, getCustomersFiltered } from "./filters.js";
-import { updateMarkerVisibility } from "./markers.js";
 
 // js/customers.js
 export function getSelectedClients(state) {
@@ -17,8 +16,6 @@ export function deselectAllCustomers(state) {
     cb.closest('.client-item').classList.remove('selected');
   });
 
-   const filtered = getCustomersFiltered(state);
-  updateMarkerVisibility(state, filtered);
   state.showOnlySelected = false
 
   document.getElementById("btnToggleSelected").textContent = "Clientes Selecionados";

@@ -906,6 +906,39 @@ textarea:focus {
     color: #6a6d70;
     margin-bottom: 4px;
 }
+.filter-btn {
+    background: #ffffff;
+    color: #0a6ed1;
+    border: 1px solid #cdd5df;
+    padding: 0.42rem 1rem;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, transform .1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover minimalista */
+.filter-btn:hover {
+    background: #f4f7fb;
+    border-color: #b9c4d2;
+}
+
+/* Active */
+.filter-btn:active {
+    background: #e8eef5;
+    border-color: #a9b8c9;
+    transform: translateY(1px);
+}
+
+/* Foco (teclado/acessibilidade) */
+/* .filter-btn:focus {
+    outline: 2px solid #0a6ed140;
+    outline-offset: 2px;
+} */
 
 .filter-field input,
 .filter-field select {

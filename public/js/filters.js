@@ -3,7 +3,7 @@ import { createClusterLayer } from './clusters.js';
 import { state } from './config.js';
 import { getSelectedClients } from './customers.js';
 import { renderCustomerList } from './list.js';
-import { clearMarkers, updateMarkerVisibility } from './markers.js';
+//import { clearMarkers } from './markers.js';
 
 const LS_KEY = 'clientes_filtros_v1';
 
@@ -177,7 +177,7 @@ export function renderCustomers() {
 
   const filtered = filterCustomers(state.allCustomers, saved);
 
-  if (state.map) clearMarkers(state);
+  //if (state.map) clearMarkers(state);
   renderCustomerList(state, filtered);
 
   const info = document.querySelector('.header-info');

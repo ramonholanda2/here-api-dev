@@ -31,9 +31,3 @@ export const state = {
   polygonPoints: [],
 };
 
-export function hydrateEmployeeFieldFromQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const employeeID = params.get("employeeID");
-  const input = document.getElementById("f_employee");
-  if (employeeID && input) input.value = employeeID;
-}

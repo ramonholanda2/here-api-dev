@@ -19,7 +19,7 @@ export function addMarker(state, coords, color, title, customerID) {
   state.markers.push({ customerID, marker: marker });
 }
 
-export function clearMarkers(state) {
+/* export function clearMarkers(state) {
   if (state.markers && state.markers.length) {
     state.markers.forEach(m => {
       if (m.marker && m.marker instanceof H.map.Object) {
@@ -28,16 +28,16 @@ export function clearMarkers(state) {
     });
   }
   state.markers = [];
-}
+} */
 
-export function updateMarkerVisibility(state, filteredCustomers) {
+/* export function updateMarkerVisibility(state, filteredCustomers) {
   const visibleIds = new Set(filteredCustomers.map(customer => customer.CustomerInternalID));
   
   state.markers.forEach((markerObj) => {
     const shouldShow = visibleIds.has(markerObj.customerID);
     markerObj.marker.setVisibility(shouldShow);
   });
-}
+} */
 
 
 export function centerMapInMarker(data) {
