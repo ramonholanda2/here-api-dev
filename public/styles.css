@@ -603,6 +603,66 @@ body {
     color: #32363a;
 }
 
+.remove-cell {
+    width: 36px;
+    text-align: center;
+    position: relative;
+}
+
+.remove-selected-client {
+    background: transparent;
+    border: none;
+    color: #d9534f;           
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: all .15s ease-in-out;
+}
+
+.remove-selected-client:hover {
+    background: #ffe8e8;
+    color: #c53030;
+    transform: scale(1.1);
+}
+
+.remove-selected-client:hover::after {
+    content: "Excluir";
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    background: #2b2b2b;
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+    white-space: nowrap;
+
+    opacity: 0;
+    animation: fadeTooltip .2s forwards ease-out;
+}
+
+.remove-selected-client:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 102%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #2b2b2b transparent transparent transparent;
+
+    opacity: 0;
+    animation: fadeTooltip .2s forwards ease-out;
+}
+
+@keyframes fadeTooltip {
+    from { opacity: 0; transform: translateX(-50%) translateY(2px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
 .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -612,7 +672,6 @@ body {
     display: none;
 }
 
-/* Loading animation */
 .loading {
     display: flex;
     align-items: center;
@@ -639,7 +698,6 @@ body {
     }
 }
 
-/* Estilos para seleção de polígono */
 .polygon-instructions,
 .polygon-actions {
     position: fixed;

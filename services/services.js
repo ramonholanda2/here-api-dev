@@ -255,6 +255,18 @@ async function getRedirectSalesCloudURL() {
   return `${destination.url}`
 }
 
+async function getAllEmployees() {
+
+  const url = `/sap/c4c/odata/v1/c4codataapi/EmployeeCollection?$select=EmployeeID,BusinessPartnerFormattedName&$format=json`;
+  const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+  const response = await executeHttpRequest(
+    destination,
+    { method: "GET", url: url }
+  );
+  const employees = response?.data?.d?.results || [];
+  return employees
+}
+
 
 export {
   getEmployeeInfo,
@@ -262,5 +274,6 @@ export {
   createRoute,
   getRedirectUrl,
   getSalesOffices,
-  getRedirectSalesCloudURL
+  getRedirectSalesCloudURL,
+  getAllEmployees
 }

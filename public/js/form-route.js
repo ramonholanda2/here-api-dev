@@ -23,12 +23,55 @@ export async function openFormRoute(state) {
   organizerInput.value = data?.name || '';
   ownerInput.value = data?.name || '';
 
+  const tableTitle = document.getElementById('section-title');
+  if (tableTitle) {
+    tableTitle.innerHTML = `(${customers.length}) Clientes selecionados`;
+  }
+
   const tbody = document.querySelector("#tableCustomers tbody");
   tbody.innerHTML = "";
 
   customers.forEach(customer => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${customer.CustomerInternalID}</td><td>${customer.CustomerName}</td><td>${customer.FormattedPostalAddressDescription}</td>`;
+    tr.innerHTML = `<td>${customer.CustomerInternalID}</td><td>${customer.CustomerName}</td><td>${customer.FormattedPostalAddressDescription}</td><td class="remove-cell"><button class="remove-selected-client" data-id="${customer.CustomerInternalID}">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+
+
+  document.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".remove-selected-client");
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+
+    const tr = btn.closest("tr");
+    if (tr) tr.remove();
+
+    const checkbox = document.querySelector(`.client-checkbox[data-id="${id}"]`);
+    if (checkbox) {
+      checkbox.checked = false;
+
+      checkbox.closest(".client-item")?.classList.remove("selected");
+    }
+  });
+}
+
+export function updateSelectedCustomersTable() {
+  const tbody = document.querySelector("#tableCustomers tbody");
+  tbody.innerHTML = "";
+
+  state.selectedCustomers.forEach(c => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${c.CustomerInternalID}</td>
+      <td>${c.CustomerName}</td>
+      <td>${c.FullAddress}</td>
+      <td class="remove-cell">
+        <button class="remove-selected-client" data-id="${c.CustomerInternalID}">✕</button>
+      </td>
+    `;
+
     tbody.appendChild(tr);
   });
 }
@@ -107,22 +150,22 @@ export async function saveRoute(state) {
 
         const timeMessageMS = 3000;
         showToast('Rota criada com sucesso.', 'success', timeMessageMS);
-        
-        setTimeout(async () => {
-            const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
-            const response = await axios.get(url);
-            const linkRouteCreated = decodeURIComponent(response.data);
 
-            console.log(linkRouteCreated);
-            window.open(linkRouteCreated, '_blank')?.focus();
+        setTimeout(async () => {
+          const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
+          const response = await axios.get(url);
+          const linkRouteCreated = decodeURIComponent(response.data);
+
+          console.log(linkRouteCreated);
+          window.open(linkRouteCreated, '_blank')?.focus();
         }, timeMessageMS + 500);
 
 
-       /*  const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
-        const response = await axios.get(url)
-        const linkRouteCreated = decodeURIComponent(response.data);
-        console.log(linkRouteCreated)
-        window.open(linkRouteCreated, '_blank')?.focus(); */
+        /*  const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
+         const response = await axios.get(url)
+         const linkRouteCreated = decodeURIComponent(response.data);
+         console.log(linkRouteCreated)
+         window.open(linkRouteCreated, '_blank')?.focus(); */
       })
     closeFormRoute();
     clearFormRoute();

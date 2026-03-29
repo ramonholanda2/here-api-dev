@@ -124,11 +124,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const cancel = () => { closeFormRoute(); clearFormRoute(); };
   document.getElementById('btnCancelForm')?.addEventListener('click', e => {
     if (state.isShowPolygonActions == true) showPolygonActions()
-    console.log('state.showPolygonActions', state.isShowPolygonActions)
+    const title = document.getElementById('section-title');
+
+    title.innerText = 'Clientes';
+
     cancel();
   });
   document.getElementById('btnCloseForm')?.addEventListener('click', e => {
-    console.log('state.showPolygonActions', state.isShowPolygonActions)
+    const title = document.getElementById('section-title');
+
+    title.innerText = 'Clientes';
+
     if (state.isShowPolygonActions == true) showPolygonActions()
     cancel();
   });

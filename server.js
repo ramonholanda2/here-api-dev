@@ -50,6 +50,15 @@ app.get('/api/rotas/redirecionar/:routeUUID', async (req, res, next) => {
   }
 });
 
+app.get('/api/empregados' , async (req, res, next) => {
+  try {
+    const employees = await getAllEmployees();
+    return res.json(employees);
+  } catch (error) {
+    next(error);
+  }
+})
+
 app.get('/api/clientes', async (req, res, next) => {
   try {
 
