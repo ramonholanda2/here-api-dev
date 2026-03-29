@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   document.getElementById("btnSearchOffices").onclick = async () => {
-    const loader = document.getElementById("officesLoading");
+    const loader = document.getElementById("LoadingModal");
     loader.classList.remove("hidden");
 
     try {
@@ -164,6 +164,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const officeIds = selectedOffices.map(office => office.OrgUnitID);
 
       await loadCustomers({ salesOfficesIDs: officeIds.join(',') }).then(renderCustomers);
+
+      state.showOnlySelected = false;
+
+      document.getElementById("btnToggleSelected").textContent = "Clientes Selecionados";
 
       closeOfficesModal();
 
@@ -254,5 +258,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
 
     renderEmployeesTable(filtered);
+  });
+
+  let listFieldsName = ['f_nome', 'f_status', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_regiao', 'f_equipe', 'f_pin', 'f_estado'];
+
+  listFieldsName.forEach(id => {
+    const el = document.getElementById(id);
+    if (el?.tagName === 'INPUT') {
+      el.addEventListener('keyup', (ev) => {
+        if (ev.key === 'Enter') applyFiltersAndRender(state.showOnlySelected);
+      });
+    }
   });
 });

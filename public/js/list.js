@@ -102,9 +102,6 @@ export function renderCustomerList(state, customers) {
   }
 
   if (customers.length > 0) {
-
-    console.log('createClusterLayer', customers, state)
-
     state.clusterLayer = createClusterLayer(customers, state);
     state.map.addLayer(state.clusterLayer);
   }

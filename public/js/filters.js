@@ -141,10 +141,12 @@ export function getCustomersFiltered() {
 export function applyFiltersAndRender(showOnlySelected = false) {
 
   let customersToRender;
+  let customersSelectedLength = 0;
 
   if (showOnlySelected) {
     const filters = getFiltersFromUI();
     const customersSelected = Array.from(state.selectedCustomers.values());
+    customersSelectedLength = customersSelected.length;
     customersToRender = filterCustomers(customersSelected, filters);
     
   } else {
@@ -163,7 +165,7 @@ export function applyFiltersAndRender(showOnlySelected = false) {
   state.map.addLayer(state.clusterLayer);
 
   const info = document.querySelector('.header-info');
-  if (info) info.textContent = `Mostrando ${customersToRender.length}`;
+  if (info) info.textContent = `Mostrando ${customersToRender.length} de ${showOnlySelected ? customersSelectedLength : state.allCustomers.length}`;
 }
 
 

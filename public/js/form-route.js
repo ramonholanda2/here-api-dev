@@ -128,8 +128,11 @@ export async function saveRoute(state) {
     Z_TipoVisita_KUT: `${typeVisit.value} - ${typeVisitDesc}`,
     ...notesObject
   };
+  const loader = document.getElementById("LoadingModal");
+  loader.classList.remove("hidden");
 
   try {
+
     await axios.post('/api/rotas', payload)
       .then(async (route) => {
 
@@ -153,6 +156,8 @@ export async function saveRoute(state) {
   } catch (err) {
     console.error(err);
     showToast('Erro ao salvar rota, contate o suporte.', 'error', 5000);
+  } finally {
+    loader.classList.add("hidden");
   }
 }
 
