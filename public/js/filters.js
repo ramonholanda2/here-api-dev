@@ -134,7 +134,8 @@ export function toggleShowSelected(state) {
 
 
 export function getCustomersFiltered() {
-  return filterCustomers(state.allCustomers, getFiltersFromUI());
+  const customers = state.showOnlySelected ? Array.from(state.selectedCustomers.values()) : state.allCustomers;
+  return filterCustomers(customers, getFiltersFromUI());
 }
 
 
