@@ -40,7 +40,7 @@ export function addMarker(state, coords, color, title, customerID) {
 } */
 
 
+
 export function centerMapInMarker(data) {
-  console.log('centerMapInMarker', data);
   state.map.getViewModel().setLookAtData(data, 2.6);
 }

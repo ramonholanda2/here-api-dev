@@ -44,6 +44,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderCustomers()
   });
 
+  document.getElementById('sidebarToggle').addEventListener('click', function () {
+    const sidebar = document.querySelector('.sidebar');
+    const map = document.getElementById('mapContainer');
+
+    sidebar.classList.toggle('collapsed');
+    map.classList.toggle('expanded');
+
+    const existing = document.getElementById('sidebarCollapsedControls');
+    if (sidebar.classList.contains('collapsed')) {
+      const panel = document.createElement('div');
+      panel.id = 'sidebarCollapsedControls';
+      panel.innerHTML = `
+      <button id="btnExpandSidebar" title="Mostrar painel">▶</button>
+      <button id="btnShowAll" title="Clientes do escritório">🏢</button>
+      <button id="btnShowSelected" title="Clientes selecionados">✓</button>
+    `;
+      map.appendChild(panel);
+
+      document.getElementById('btnExpandSidebar').addEventListener('click', () => {
+        sidebar.classList.remove('collapsed');
+        map.classList.remove('expanded');
+        panel.remove();
+        setTimeout(() => state.map?.getViewPort()?.resize(), 350);
+      });
+
+      document.getElementById('btnShowAll').addEventListener('click', () => {
+        if (state.showOnlySelected) {
+          showToast('Mostrando clientes do escritório.', 'success');
+          toggleShowSelected(state);
+          document.getElementById('btnToggleSelected').textContent = 'Clientes Selecionados';
+        }
+      });
+
+      document.getElementById('btnShowSelected').addEventListener('click', () => {
+        if (!state.showOnlySelected) {
+          showToast('Mostrando clientes selecionados.', 'success');
+          toggleShowSelected(state);
+          document.getElementById('btnToggleSelected').textContent = 'Clientes do escritório';
+        }
+      });
+
+    } else if (existing) {
+      existing.remove();
+    }
+
+    setTimeout(() => state.map?.getViewPort()?.resize(), 350);
+  });
+
+
   document.getElementById('btnClearRoute')?.addEventListener('click', () => clearRoute(state));
   document.getElementById('btnOpenFormRoute')?.addEventListener('click', () => {
     openFormRoute(state);
@@ -58,8 +107,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('btnSelectArea')?.addEventListener('click', () => enablePolygonSelection(state, 'triangle'));
-  document.getElementById('btnSelectCircle')?.addEventListener('click', () => enablePolygonSelection(state, 'circle'));
   document.getElementById('btnSelectSquare')?.addEventListener('click', () => enablePolygonSelection(state, 'square'));
+  document.getElementById('btnSelectPentagon')?.addEventListener('click', () => enablePolygonSelection(state, 'pentagon'));
+  document.getElementById('btnSelectCircle')?.addEventListener('click', () => enablePolygonSelection(state, 'circle'));
 
   let toggleSelectArea = false;
 
@@ -191,7 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tr = btn.closest("tr");
     if (tr) tr.remove();
-    
+
     state.selectedCustomers.delete(id);
 
     const checkbox = document.querySelector(`.client-checkbox[data-id="${id}"]`);

@@ -1,6 +1,5 @@
 import { statusColors } from "./config.js";
 
-// ---- Cache global para ícones ----
 const clusterIconCache = new Map();
 const noiseIconCache = new Map();
 

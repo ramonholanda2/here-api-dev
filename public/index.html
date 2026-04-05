@@ -31,13 +31,19 @@
   <div class="container">
     <div id="toast-container"></div>
     <div class="sidebar">
+      <div id="toast-container"></div>
+
       <div class="sidebar-header">
         <div class="header-icon">📋</div>
         <div class="header-content">
           <div class="header-title">Clientes</div>
-          <div class="header-info"></div>
+          <div class="header-info" id="clientCountLabel"></div>
         </div>
       </div>
+
+      <button id="sidebarToggle" title="Ocultar painel">
+        <span class="toggle-icon">◀</span>
+      </button>
 
 
       <form id="filtersPanel" class="filters-panel" method="GET" action="">
@@ -164,8 +170,9 @@
         <button id="btnSelectShape" class="fiori-button warning">🧭 Selecionar forma</button>
         <div id="shapeMenu" class="shape-menu hidden" role="menu" aria-labelledby="btnSelectShape">
           <button id="btnSelectArea" class="shape-option" data-shape="triangle" role="menuitem">🔺 Triângulo</button>
-          <button id="btnSelectCircle" class="shape-option" data-shape="circle" role="menuitem">⚪ Círculo</button>
           <button id="btnSelectSquare" class="shape-option" data-shape="square" role="menuitem">⬛ Quadrado</button>
+          <button id="btnSelectPentagon" class="shape-option" data-shape="pentagon" role="menuitem"> ⬟ Pentágono</button>
+          <button id="btnSelectCircle" class="shape-option" data-shape="circle" role="menuitem">⚪ Círculo</button>
         </div>
 
 
@@ -269,7 +276,7 @@
 
         <div class="form-field">
           <label>Notas</label>
-          <textarea id="routeNotes" rows="3" placeholder="Observações..."></textarea>
+          <textarea id="routeNotes" rows="1" placeholder="Observações..."></textarea>
         </div>
 
         <h3 id="section-title" class="section-title">Clientes selecionados</h3>
@@ -313,7 +320,7 @@
         <table id="officesTable" class="sap-table">
           <thead>
             <tr>
-              <th style="width:40px;"></th> <!-- checkbox só se selecionável -->
+              <th style="width:40px;"></th> 
               <th>ID</th>
               <th>Nome</th>
             </tr>

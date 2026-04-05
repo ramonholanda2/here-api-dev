@@ -59,7 +59,7 @@ body {
     height: 100vh;
 }
 
-/* SAP Fiori Sidebar - Enhanced */
+
 .sidebar {
     width: 36%;
     background: #ffffff;
@@ -67,16 +67,140 @@ body {
     display: flex;
     flex-direction: column;
     box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.15);
+    position: relative;
+    transition: transform 0.25s ease;
+    transform-origin: left;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+    pointer-events: none;
+    border-right: none;
+}
+
+
+#mapContainer.expanded {
+    margin-left: -36%;
+    width: 100%;
 }
 
 .sidebar-header {
     background: linear-gradient(135deg, #0a6ed1 0%, #0854a0 100%);
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
     color: white;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: flex-end;
+    gap: 0.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.header-icon {
+    font-size: 0.875rem;
+}
+
+.header-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
+.header-info {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Botão de toggle — fica na borda direita da sidebar */
+#sidebarToggle {
+    position: absolute;
+    top: 0.65rem;
+    right: -1.125rem;
+    z-index: 2;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: #0a6ed1;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background 0.2s ease;
+    color: white;
+    font-size: 0.7rem;
+    line-height: 1;
+    font-family: inherit;
+}
+
+#sidebarToggle:hover {
+    background: #085cad;
+    box-shadow: 0 4px 12px rgba(10, 110, 209, 0.35);
+}
+
+#sidebarToggle .toggle-icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.sidebar.collapsed #sidebarToggle .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Quando colapsado, o botão precisa continuar visível fora do overflow:hidden */
+.sidebar.collapsed #sidebarToggle {
+    right: -2.5rem;
+}
+
+#sidebarCollapsedControls {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#sidebarCollapsedControls button {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid #d9d9d9;
+    background: #ffffff;
+    color: #32363a;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+#sidebarCollapsedControls button:hover {
+    border-color: #0a6ed1;
+    color: #0a6ed1;
+    box-shadow: 0 4px 16px rgba(10, 110, 209, 0.2);
+    transform: translateY(-1px);
+}
+
+#sidebarCollapsedControls #btnExpandSidebar {
+    background: linear-gradient(135deg, #0a6ed1 0%, #0854a0 100%);
+    border-color: #0a6ed1;
+    color: white;
+}
+
+#sidebarCollapsedControls #btnExpandSidebar:hover {
+    background: linear-gradient(135deg, #085cad 0%, #063d7a 100%);
+    color: white;
 }
 
 .header-icon {
@@ -127,7 +251,6 @@ body {
     background: #fafafa;
 }
 
-/* Client Grid Layout - Enhanced */
 .clients-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -934,7 +1057,7 @@ textarea:focus {
 /* ===== TITULOS DE SEÇÃO ===== */
 .section-title {
     margin-top: 2rem;
-    font-size: 1.2rem;
+    font-size: 1rem;
 }
 
 .section-label {

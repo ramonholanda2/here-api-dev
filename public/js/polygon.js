@@ -51,6 +51,8 @@ export function onMapClick(state, evt) {
     createInitialCircle(state, coord);
   } else if (state.selectionShape === 'square') {
     createInitialSquare(state, coord);
+  } else if (state.selectionShape === 'pentagon') {
+    createInitialPentagon(state, coord);
   } else {
     createInitialTriangle(state, coord);
   }
@@ -72,6 +74,27 @@ export function createInitialSquare(state, center) {
   const p4 = { lat: center.lat - d, lng: center.lng - d };
 
   state.polygonPoints = [p1, p2, p3, p4];
+  createResizablePolygon(state);
+}
+
+
+
+export function createInitialPentagon(state, center) {
+  const size = 0.006;
+  const numSides = 5;
+
+  const startAngle = Math.PI / 2;
+  const angleStep = (2 * Math.PI) / numSides;
+
+  const points = [];
+  for (let i = 0; i < numSides; i++) {
+    const angle = startAngle + angleStep * i;
+    const lat = center.lat + size * Math.sin(angle);
+    const lng = center.lng + size * Math.cos(angle);
+    points.push({ lat, lng });
+  }
+
+  state.polygonPoints = points;
   createResizablePolygon(state);
 }
 
@@ -125,8 +148,13 @@ function createCirclePolygon(state) {
 
   setupCircleResize(state);
 
-  state.map.getViewModel()
-    .setLookAtData({ bounds: state.currentPolygon.getBoundingBox() });
+  const bounds = state.currentPolygon.getBoundingBox();
+  const ZOOM_LEVEL = 2.7;
+  const expanded = expandBounds(bounds, ZOOM_LEVEL);
+
+  state.map.getViewModel().setLookAtData({
+    bounds: expanded
+  });
 }
 
 function setupCircleResize(state) {
@@ -220,12 +248,39 @@ export function createResizablePolygon(state) {
 
   setupPolygonEvents(state, state.polygonGroup, verticeGroup);
   verticeGroup.setVisibility(true);
-  state.map.getViewModel().setLookAtData({ bounds: state.currentPolygon.getBoundingBox() });
+  const bounds = state.currentPolygon.getBoundingBox();
+  const ZOOM_LEVEL = 2.7;
+  const expanded = expandBounds(bounds, ZOOM_LEVEL);
+
+  state.map.getViewModel().setLookAtData({
+    bounds: expanded
+  });
 }
 
+function expandBounds(bounds, factor = 1.3) {
+  const top = bounds.getTop();
+  const bottom = bounds.getBottom();
+  const left = bounds.getLeft();
+  const right = bounds.getRight();
+
+  const height = top - bottom;
+  const width = right - left;
+
+  const expandHeight = (height * (factor - 1)) / 2;
+  const expandWidth = (width * (factor - 1)) / 2;
+
+  return new H.geo.Rect(
+    top + expandHeight,
+    left - expandWidth,
+    bottom - expandHeight,
+    right + expandWidth
+  );
+}
+
+
 export function createVerticeGroup(state) {
-  const svgCircle = `<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="6" fill="red" stroke="white" stroke-width="2"/>
+  const svgCircle = `<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="8" cy="8" r="9" fill="red" stroke="white" stroke-width="2"/>
   </svg>`;
 
   const verticeGroup = new H.map.Group({ visibility: false });
@@ -251,6 +306,7 @@ export function createVerticeGroup(state) {
   return verticeGroup;
 }
 
+
 export function setupPolygonEvents(state, mainGroup, verticeGroup) {
   let polygonTimeout;
 
@@ -270,12 +326,24 @@ export function setupPolygonEvents(state, mainGroup, verticeGroup) {
 
   verticeGroup.addEventListener('pointerleave', function () {
     mapElement.style.cursor = 'default';
+    state.currentPolygon.setStyle({
+      fillColor: 'rgba(0, 100, 200, 0.3)',
+      strokeColor: 'rgba(0, 100, 200, 0.8)',
+      lineWidth: 5
+    })
   }, true);
 
   verticeGroup.addEventListener('drag', function (evt) {
+
     mapElement.style.cursor = 'grabbing';
     const pointer = evt.currentPointer;
     const geoPoint = state.map.screenToGeo(pointer.viewportX, pointer.viewportY);
+
+    state.currentPolygon.setStyle({
+      fillColor: 'rgba(200, 150, 0, 0.3)',
+      strokeColor: 'rgba(255, 200, 0, 1)',
+      lineWidth: 5
+    })
 
     if (!isFinite(geoPoint.lat) || !isFinite(geoPoint.lng)) return;
 
@@ -292,13 +360,25 @@ export function setupPolygonEvents(state, mainGroup, verticeGroup) {
     evt.stopPropagation();
 
   }, true);
+
+
+  state.map.addEventListener('pointerup', () => {
+    mapElement.style.cursor = 'default';
+    state.currentPolygon?.setStyle({
+      fillColor: 'rgba(0, 100, 200, 0.3)',
+      strokeColor: 'rgba(0, 100, 200, 0.8)',
+      lineWidth: 5
+    });
+  });
+
 }
 
 export function showPolygonInstructions(shape) {
   const shapeFormat = {
     circle: 'circulo',
     square: 'retangulo',
-    triangle: 'triângulo'
+    triangle: 'triângulo',
+    pentagon: 'pentágono'
   }
   const instructionDiv = document.createElement('div');
   instructionDiv.id = 'polygonInstructions';
