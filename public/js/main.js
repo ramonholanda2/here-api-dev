@@ -12,7 +12,7 @@ import {
   showPolygonActions
 } from './polygon.js';
 import { setupFiltersToggle } from './filters-toggle.js';
-import { applyFiltersAndRender, renderCustomers, toggleShowSelected } from './filters.js';
+import { applyFiltersAndRender, clearFilters, renderCustomers, toggleShowSelected } from './filters.js';
 import { validateRouteForm } from './route-form-validate.js';
 import { showToast } from './util.js';
 import { deselectAllCustomers, getSelectedClients } from './customers.js';
@@ -231,6 +231,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyFiltersAndRender(state.showOnlySelected);
   });
 
+  const clearFilterBTN = document.getElementById("clearFiltersBtn");
+  clearFilterBTN?.addEventListener("click", () => {
+    clearFilters();
+  });
+
   const tbodyCustomers = document.querySelector("#tableCustomers tbody");
 
   tbodyCustomers.addEventListener("click", (ev) => {
@@ -310,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderEmployeesTable(filtered);
   });
 
-  let listFieldsName = ['f_nome', 'f_status', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_regiao', 'f_equipe', 'f_pin', 'f_estado'];
+  let listFieldsName = ['f_nome', 'f_status', 'f_cidade', 'f_cnpj', 'f_idsap', 'f_equipe', 'f_pin', 'f_estado'];
 
   listFieldsName.forEach(id => {
     const el = document.getElementById(id);

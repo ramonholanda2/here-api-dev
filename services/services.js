@@ -199,6 +199,7 @@ function mapResponsePayload(results) {
       LatitudeMeasure: item.CLATITUDE_MEASURE,
       LongitudeMeasure: item.CLONGITUDE_MEASURE,
       SalesGroupName: item.TSALES_GROUP_UUID,
+      SalesGroupID: item.CSALES_GROUP_UUID,
       SalesOfficeName: item.TSALES_OFFICE_UUID,
       SalesOfficeID: item.CSALES_OFFICE_UUID,
       Z_Classificao_KUT: item.CVARIATUSROOT47DABF57C1EE435F,

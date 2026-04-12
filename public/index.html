@@ -55,12 +55,37 @@
             </div> -->
 
             <div class="filter-field">
-              <label for="f_nome">Nome do cliente</label>
-              <input type="text" id="f_nome" name="nome" placeholder="Ex.: Cooperativa" autocomplete="on" />
+              <label for="f_idsap">Código do cliente</label>
+              <input type="text" id="f_idsap" name="idSap" autocomplete="on" />
             </div>
 
             <div class="filter-field">
-              <label for="f_status">Classificação</label>
+              <label for="f_nome">Nome do cliente</label>
+              <input type="text" id="f_nome" name="nome" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_cnpj">CNPJ</label>
+              <input type="text" id="f_cnpj" name="cnpj" inputmode="numeric" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_estado">Estado</label>
+              <input type="text" id="f_estado" name="estado" maxlength="2" autocapitalize="characters" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_cidade">Cidade</label>
+              <input type="text" id="f_cidade" name="cidade" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_equipe">Representante</label>
+              <input type="text" id="f_equipe" name="equipeVendas" autocomplete="on" />
+            </div>
+
+            <div class="filter-field">
+              <label for="f_status">Status</label>
               <select id="f_status" name="statusCliente">
                 <option value="">Todos</option>
                 <option value="CRESCENDO">Crescendo</option>
@@ -71,37 +96,10 @@
               </select>
             </div>
 
-            <div class="filter-field">
-              <label for="f_estado">Estado</label>
-              <input type="text" id="f_estado" name="estado" placeholder="Ex.: PR" maxlength="2"
-                autocapitalize="characters" />
-            </div>
-
-            <div class="filter-field">
-              <label for="f_cidade">Cidade</label>
-              <input type="text" id="f_cidade" name="cidade" placeholder="Ex.: Curitiba" autocomplete="on" />
-            </div>
-
-            <div class="filter-field">
-              <label for="f_cnpj">CNPJ</label>
-              <input type="text" id="f_cnpj" name="cnpj" placeholder="Ex.: 12.345.678/0001-90" inputmode="numeric"
-                autocomplete="on" />
-            </div>
-
-            <div class="filter-field">
-              <label for="f_idsap">ID SAP</label>
-              <input type="text" id="f_idsap" name="idSap" placeholder="Ex.: 10001234" autocomplete="on" />
-            </div>
-
-            <div class="filter-field">
+            <!-- <div class="filter-field">
               <label for="f_regiao">Região (escritório de vendas)</label>
-              <input type="text" id="f_regiao" name="regiao" placeholder="Ex.: Sul" autocomplete="on" />
-            </div>
-
-            <div class="filter-field">
-              <label for="f_equipe">Equipe de vendas</label>
-              <input type="text" id="f_equipe" name="equipeVendas" placeholder="Ex.: Time A" autocomplete="on" />
-            </div>
+              <input type="text" id="f_regiao" name="regiao" autocomplete="on" />
+            </div> -->
 
 
             <!-- <button id="applyFiltersBtn" class="fiori-button filter-btn" type="button">
@@ -138,6 +136,9 @@
           <button id="applyFiltersBtn" class="fiori-button filter-btn" type="button">
             🔍 Filtrar
           </button>
+          <button id="clearFiltersBtn" class="fiori-button filter-btn" type="button">
+            Limpar Filtros
+          </button>
 
           <button id="toggleFiltersBtn" class="fiori-button" type="button" aria-expanded="true"
             aria-controls="filtersPanel" title="Mostrar ou ocultar filtros">
@@ -171,8 +172,9 @@
         <div id="shapeMenu" class="shape-menu hidden" role="menu" aria-labelledby="btnSelectShape">
           <button id="btnSelectArea" class="shape-option" data-shape="triangle" role="menuitem">🔺 Triângulo</button>
           <button id="btnSelectSquare" class="shape-option" data-shape="square" role="menuitem">⬛ Quadrado</button>
-          <button id="btnSelectPentagon" class="shape-option" data-shape="pentagon" role="menuitem"> ⬟ Pentágono</button>
-          <button id="btnSelectCircle" class="shape-option" data-shape="circle" role="menuitem">⚪ Círculo</button>
+          <button id="btnSelectPentagon" class="shape-option" data-shape="pentagon" role="menuitem"> ⬟
+            Pentágono</button>
+          <!-- <button id="btnSelectCircle" class="shape-option" data-shape="circle" role="menuitem">⚪ Círculo</button> -->
         </div>
 
 
@@ -208,28 +210,29 @@
 
       <div class="modal-section">
         <div class="form-grid">
-          <div class="form-field">
-            <label>Nome</label>
-            <input type="text" id="routeName" placeholder="Ex: Rota Sul" />
-          </div>
 
-          <div class="form-field">
+
+          <!-- <div class="form-field">
             <label>Tipo</label>
             <select disabled>
               <option>Rota</option>
             </select>
-          </div>
+          </div> -->
         </div>
 
         <div class="form-grid">
-          <div class="form-field">
-            <label>Data de início</label>
-            <input type="date" id="routeDate" />
-          </div>
 
           <div class="form-field">
+            <label>Nome</label>
+            <input type="text" id="routeName" class="field-error" />
+          </div>
+          <div class="form-field">
+            <label>Data de início</label>
+            <input type="date" id="routeDate" class="field-error" />
+          </div>
+          <div class="form-field">
             <label>Tipo da visita</label>
-            <select id="routeTypeVisit">
+            <select id="routeTypeVisit" class="field-error">
               <option value="" selected disabled hidden></option>
               <option value="Z01">Visita de rotina</option>
               <option value="Z02">Sábado Azul</option>
@@ -241,6 +244,25 @@
               <option value="Z08">Visitas Trade Marketing</option>
               <option value="Z09">Visitas às Fábricas (Portas Abertas)</option>
             </select>
+          </div>
+
+          <div class="form-field">
+            <label>Organizador</label>
+            <input id="routeOrganizer" value="" readonly />
+          </div>
+
+
+          <div class="form-field">
+            <label>Proprietário</label>
+            <div id="routeOwner" class="employee-select" data-id="">
+              <span id="routeOwnerName">Carregando...</span>
+              <span class="employee-select-icon">▾</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Notas</label>
+            <textarea id="routeNotes" rows="1"></textarea>
           </div>
 
         </div>
@@ -257,27 +279,12 @@
         </div> -->
 
         <div class="form-grid">
-          <div class="form-field">
-            <label>Organizador</label>
-            <input id="routeOrganizer" value="" readonly />
-          </div>
 
-
-          <div class="form-field">
-            <label>Proprietário</label>
-            <div id="routeOwner" class="employee-select" data-id="">
-              <span id="routeOwnerName">Carregando...</span>
-              <span class="employee-select-icon">▾</span>
-            </div>
-          </div>
 
 
         </div>
 
-        <div class="form-field">
-          <label>Notas</label>
-          <textarea id="routeNotes" rows="1" placeholder="Observações..."></textarea>
-        </div>
+
 
         <h3 id="section-title" class="section-title">Clientes selecionados</h3>
         <div class="table-responsive">
@@ -320,7 +327,7 @@
         <table id="officesTable" class="sap-table">
           <thead>
             <tr>
-              <th style="width:40px;"></th> 
+              <th style="width:40px;"></th>
               <th>ID</th>
               <th>Nome</th>
             </tr>
@@ -351,7 +358,7 @@
         <button class="horizon-modal-close closeEmployeesModal">✕</button>
       </div>
       <div class="employee-search-container">
-        <input type="text" id="employeeSearch" placeholder="Filtrar empregado..." />
+        <input type="text" id="employeeSearch" />
       </div>
 
       <div class="horizon-modal-body">

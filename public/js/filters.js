@@ -14,8 +14,9 @@ const fieldMap = {
   cidade: ['CustomerPostalAddress.0.CityName', 'CityName'],
   cnpj: ['zCNPJ_KUT'],
   idSap: ['CustomerInternalID'],
-  regiao: ['SalesOfficeName'],
+  /* regiao: ['SalesOfficeName'], */
   equipeVendas: ['SalesGroupName'],
+  equipeVendasID: ['SalesGroupID'],
 };
 
 function norm(v) {
@@ -42,7 +43,7 @@ export function getFiltersFromUI() {
     cidade: document.getElementById('f_cidade')?.value?.trim() || '',
     cnpj: document.getElementById('f_cnpj')?.value?.trim() || '',
     idSap: document.getElementById('f_idsap')?.value?.trim() || '',
-    regiao: document.getElementById('f_regiao')?.value?.trim() || '',
+    /* regiao: document.getElementById('f_regiao')?.value?.trim() || '', */
     equipeVendas: document.getElementById('f_equipe')?.value?.trim() || '',
     pin: document.getElementById('f_pin')?.value || '',
   };
@@ -57,7 +58,7 @@ export function filterCustomers(all, filters) {
     cidade: norm(filters.cidade),
     cnpj: filters.cnpj?.replace(/\D/g, ''),
     idSap: norm(filters.idSap),
-    regiao: norm(filters.regiao),
+    /*  regiao: norm(filters.regiao), */
     equipeVendas: norm(filters.equipeVendas),
     pin: norm(filters.pin),
   };
@@ -112,15 +113,16 @@ export function filterCustomers(all, filters) {
     }
 
     // região (contains)
-    if (f.regiao) {
+    /* if (f.regiao) {
       const regiao = norm(getFirst(customer, fieldMap.regiao));
       if (!regiao.includes(f.regiao)) return false;
-    }
+    } */
 
     // equipe de vendas (contains)
     if (f.equipeVendas) {
       const equipe = norm(getFirst(customer, fieldMap.equipeVendas));
-      if (!equipe.includes(f.equipeVendas)) return false;
+      const equipeID = norm(getFirst(customer, fieldMap.equipeVendasID));
+      if (!equipe.includes(f.equipeVendas) && !equipeID.includes(f.equipeVendas)) return false;
     }
 
     return true;
@@ -139,17 +141,35 @@ export function getCustomersFiltered() {
 }
 
 
+export function clearFilters() {
+  [
+    'f_nome',
+    'f_status',
+    'f_estado',
+    'f_cidade',
+    'f_cnpj',
+    'f_idsap',
+    'f_equipe',
+    'f_pin'
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  applyFiltersAndRender(state.showOnlySelected);
+}
+
 export function applyFiltersAndRender(showOnlySelected = false) {
 
   let customersToRender;
   let customersSelectedLength = 0;
 
   if (showOnlySelected) {
-    const filters = getFiltersFromUI();
+    const filters = {};
     const customersSelected = Array.from(state.selectedCustomers.values());
-    customersSelectedLength = customersSelected.length;
+    /* customersSelectedLength = customersSelected.length; */
     customersToRender = filterCustomers(customersSelected, filters);
-    
+
   } else {
     const filters = getFiltersFromUI();
     //const customersSelected = Array.from(state.selectedCustomers.values());

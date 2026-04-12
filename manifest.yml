@@ -2,7 +2,7 @@
 applications:
 - name: here-api
   random-route: true
-  memory: 1G
+  memory: 2G
   buildpacks: 
   - nodejs_buildpack
   services:

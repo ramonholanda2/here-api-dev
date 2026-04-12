@@ -110,7 +110,7 @@ export async function saveRoute(state) {
   const params = new URLSearchParams(window.location.search);
   const employeeID = params.get("employeeID");
   const ownerID = document.getElementById("routeOwner").dataset.id;
-  console.log('ownerID', ownerID);
+
   const payload = {
     Name: nameRoute || "Nova Rota",
     RouteTypeCode: "2",
@@ -119,7 +119,7 @@ export async function saveRoute(state) {
     DefaultStartTime: "PT08H00M00S",
     DefaultPreparationTime: "PT1H",
     DefaultDuration: "PT1H",
-    Status: "2",
+    Status: "1",
     ProcessingStatus: "1",
     VisitTypeCode: typeVisit.value,
     OwnerPartyID: ownerID,
@@ -136,17 +136,13 @@ export async function saveRoute(state) {
     await axios.post('/api/rotas', payload)
       .then(async (route) => {
 
-        const timeMessageMS = 3000;
-        showToast('Rota criada com sucesso.', 'success', timeMessageMS);
+        const timeMessageMS = 4000;
+        showToast('Rota criada com sucesso, estamos redirecionando para o CRM.', 'success', timeMessageMS);
 
-        setTimeout(async () => {
-          const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
-          const response = await axios.get(url);
-          const linkRouteCreated = decodeURIComponent(response.data);
-
-          console.log(linkRouteCreated);
-          window.open(linkRouteCreated, '_blank')?.focus();
-        }, timeMessageMS + 500);
+        const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
+        const response = await axios.get(url);
+        const linkRouteCreated = decodeURIComponent(response.data);
+        window.location.href = linkRouteCreated;
 
       })
 
@@ -155,7 +151,7 @@ export async function saveRoute(state) {
     clearRoute(state);
   } catch (err) {
     console.error(err);
-    showToast('Erro ao salvar rota, contate o suporte.', 'error', 5000);
+    showToast('Erro ao salvar rota, por favor entre em contato com o suporte.', 'error', 5000);
   } finally {
     loader.classList.add("hidden");
   }

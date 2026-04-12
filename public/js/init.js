@@ -80,7 +80,7 @@ export async function initApp() {
     const zoom = state.map.getZoom();
     const maxZoomOut = 5.5;
     if (zoom < maxZoomOut) {
-      state.map.setZoom(maxZoomOut); // smooth
+      state.map.setZoom(maxZoomOut);
     }
   });
 

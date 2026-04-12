@@ -62,36 +62,58 @@ export function onMapClick(state, evt) {
 
 
 export function createInitialSquare(state, center) {
-  /* const zoom = state.map.getZoom();
-  const size = Math.max(0.01, 1 / Math.pow(2, zoom - 5)); */
+  const map = state.map;
+  const pixelSize = 120;
 
-  const size = 0.006;
+  const centerScreen = map.geoToScreen(center);
 
-  const d = size;
-  const p1 = { lat: center.lat + d, lng: center.lng - d };
-  const p2 = { lat: center.lat + d, lng: center.lng + d };
-  const p3 = { lat: center.lat - d, lng: center.lng + d };
-  const p4 = { lat: center.lat - d, lng: center.lng - d };
+  const topLeft = map.screenToGeo(
+    centerScreen.x - pixelSize,
+    centerScreen.y - pixelSize
+  );
 
-  state.polygonPoints = [p1, p2, p3, p4];
+  const topRight = map.screenToGeo(
+    centerScreen.x + pixelSize,
+    centerScreen.y - pixelSize
+  );
+
+  const bottomRight = map.screenToGeo(
+    centerScreen.x + pixelSize,
+    centerScreen.y + pixelSize
+  );
+
+  const bottomLeft = map.screenToGeo(
+    centerScreen.x - pixelSize,
+    centerScreen.y + pixelSize
+  );
+
+  state.polygonPoints = [topLeft, topRight, bottomRight, bottomLeft];
   createResizablePolygon(state);
 }
 
 
 
 export function createInitialPentagon(state, center) {
-  const size = 0.006;
+  const map = state.map;
   const numSides = 5;
+
+  const pixelRadius = 120; 
+
+  const centerScreen = map.geoToScreen(center);
 
   const startAngle = Math.PI / 2;
   const angleStep = (2 * Math.PI) / numSides;
 
   const points = [];
+
   for (let i = 0; i < numSides; i++) {
     const angle = startAngle + angleStep * i;
-    const lat = center.lat + size * Math.sin(angle);
-    const lng = center.lng + size * Math.cos(angle);
-    points.push({ lat, lng });
+
+    const x = centerScreen.x + pixelRadius * Math.cos(angle);
+    const y = centerScreen.y - pixelRadius * Math.sin(angle);
+
+    const geoPoint = map.screenToGeo(x, y);
+    points.push(geoPoint);
   }
 
   state.polygonPoints = points;
@@ -99,10 +121,8 @@ export function createInitialPentagon(state, center) {
 }
 
 export function createInitialCircle(state, center) {
-  /* const zoom = state.map.getZoom();
-  const radius = Math.max(0.01, 1 / Math.pow(2, zoom - 5)); */
-
-  const radius = 0.006;
+  const zoom = state.map.getZoom();
+  const radius = Math.max(0.01, 1 / Math.pow(2, zoom - 5));
 
   state.circleCenter = { lat: center.lat, lng: center.lng };
   state.circleRadius = radius;
@@ -203,25 +223,31 @@ function cleanupCircleResize(state) {
 }
 
 export function createInitialTriangle(state, centerPoint) {
+  const map = state.map;
 
-  /* console.log("Center Point:", centerPoint);
+  const pixelRadius = 120;
 
-  const zoomLevel = state.map.getZoom();
-  console.log("Zoom Level:", zoomLevel);
-  const triangleSize = Math.max(0.01, 1 / Math.pow(5, zoomLevel - 2));
+  const centerScreen = map.geoToScreen(centerPoint);
 
-  console.log("Triangle Size:", triangleSize); */
+  const numSides = 3;
+  const startAngle = Math.PI / 2;
+  const angleStep = (2 * Math.PI) / numSides;
 
-  const triangleSize = 0.006;
+  const points = [];
 
-  const point1 = { lat: centerPoint.lat + triangleSize, lng: centerPoint.lng };
-  const point2 = { lat: centerPoint.lat - triangleSize / 2, lng: centerPoint.lng - triangleSize * Math.cos(Math.PI / 6) };
-  const point3 = { lat: centerPoint.lat - triangleSize / 2, lng: centerPoint.lng + triangleSize * Math.cos(Math.PI / 6) };
+  for (let i = 0; i < numSides; i++) {
+    const angle = startAngle + angleStep * i;
 
-  state.polygonPoints = [point1, point2, point3];
+    const x = centerScreen.x + pixelRadius * Math.cos(angle);
+    const y = centerScreen.y - pixelRadius * Math.sin(angle);
+
+    const geoPoint = map.screenToGeo(x, y);
+    points.push(geoPoint);
+  }
+
+  state.polygonPoints = points;
   createResizablePolygon(state);
 }
-
 
 export function createResizablePolygon(state) {
   const lineString = new H.geo.LineString();
@@ -254,7 +280,7 @@ export function createResizablePolygon(state) {
 
   state.map.getViewModel().setLookAtData({
     bounds: expanded
-  });
+  }); 
 }
 
 function expandBounds(bounds, factor = 1.3) {
