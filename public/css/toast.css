@@ -11,14 +11,14 @@
 
 .toast {
     display: inline-block;
-    max-width: 90vw;       /* se adapta ao tamanho da tela */
+    max-width: 100vw;       /* se adapta ao tamanho da tela */
     padding: 12px 20px;
     border-radius: 6px;
     color: white;
     font-size: 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    word-wrap: break-word; /* quebra palavras longas */
-    white-space: normal;   /* quebra linha automática */
+    word-wrap: break-word;
+    white-space: normal;  
 }
 
 .toast.success { background-color: #28a745; }

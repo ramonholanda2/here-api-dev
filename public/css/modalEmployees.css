@@ -1,6 +1,7 @@
 .employee-name-th {
     text-align: left;
 }
+
 .employee-select {
     display: flex;
     justify-content: space-between;
@@ -44,24 +45,36 @@
 
 .horizon-modal-content {
     background: #ffffff;
-    width: 520px;
+    width: 55vw;
     max-height: 70vh;
     border-radius: 14px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     animation: slideDown .25s ease;
-    box-shadow: 0 8px 30px rgba(0,0,0,.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .1);
 }
 
 @keyframes fadeIn {
-    from { opacity: 0 }
-    to { opacity: 1 }
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
 }
 
 @keyframes slideDown {
-    from { transform: translateY(-12px); opacity:0 }
-    to   { transform: translateY(0); opacity:1 }
+    from {
+        transform: translateY(-12px);
+        opacity: 0
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1
+    }
 }
 
 .horizon-modal-header {
@@ -169,4 +182,11 @@
     outline: none;
     border-color: #0a6ed1;
     background: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .horizon-modal-content {
+        background: #ffffff;
+        width: 90vw;
+    }
 }

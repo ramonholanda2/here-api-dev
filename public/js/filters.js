@@ -3,6 +3,7 @@ import { createClusterLayer } from './clusters.js';
 import { state } from './config.js';
 import { getSelectedClients } from './customers.js';
 import { renderCustomerList } from './list.js';
+import { showToast } from './util.js';
 //import { clearMarkers } from './markers.js';
 
 const LS_KEY = 'clientes_filtros_v1';
@@ -167,7 +168,7 @@ export function applyFiltersAndRender(showOnlySelected = false) {
   if (showOnlySelected) {
     const filters = {};
     const customersSelected = Array.from(state.selectedCustomers.values());
-    /* customersSelectedLength = customersSelected.length; */
+    customersSelectedLength = customersSelected.length;
     customersToRender = filterCustomers(customersSelected, filters);
 
   } else {
@@ -199,8 +200,11 @@ export function renderCustomers() {
 
   const filtered = filterCustomers(state.allCustomers, saved);
 
-  //if (state.map) clearMarkers(state);
   renderCustomerList(state, filtered);
+
+  if(filtered.length === state.allCustomers.length && state.allCustomers.length > 0) {
+    showToast(`${state.allCustomers.length} clientes foram carregados.`, 'success');
+  }
 
   const info = document.querySelector('.header-info');
   if (info) info.textContent = `Mostrando ${filtered.length} de ${state.allCustomers.length}`;

@@ -6,13 +6,13 @@ export function renderOfficeRow(office, selectable = false) {
   if (selectable) {
     tr.innerHTML = `
       <td><input type="checkbox" value="${office.OrgUnitID}" /></td>
-      <td>${office.OrgUnitID}</td>
+      <td class="officesTableID">${office.OrgUnitID}</td>
       <td>${office.Name}</td>
     `;
   } else {
     tr.innerHTML = `
       <td></td>
-      <td>${office.OrgUnitID}</td>
+      <td class="officesTableID">${office.OrgUnitID}</td>
       <td>${office.Name}</td>
     `;
   }

@@ -13,9 +13,9 @@ body {
 }
 
 /* A action-bar como referência de posicionamento do menu */
-.action-bar {
+/* .action-bar {
     position: relative;
-}
+} */
 
 /* Menu pop leve */
 .shape-menu.hidden {
@@ -73,7 +73,7 @@ body {
 }
 
 .sidebar.collapsed {
-    transform: translateX(-100%);
+    /* transform: translateX(-100%); */
     pointer-events: none;
     border-right: none;
 }
@@ -156,7 +156,7 @@ body {
 
 /* Quando colapsado, o botão precisa continuar visível fora do overflow:hidden */
 .sidebar.collapsed #sidebarToggle {
-    right: -2.5rem;
+    display: none;
 }
 
 #sidebarCollapsedControls {
@@ -290,44 +290,47 @@ body {
 
 
 .client-location {
-  width: 18px;
-  height: 18px;
-  border-radius: 50% 50% 50% 0;
-  background: #000; 
-  transform: rotate(-45deg);
-  position: relative;
-  display: inline-block;
-  margin: 4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50% 50% 50% 0;
+    background: #000;
+    transform: rotate(-45deg);
+    position: relative;
+    display: inline-block;
+    margin: 4px;
 
 }
 
 /* Círculo interno do pin */
 .client-location::after {
-  content: "";
-  width: 7px;
-  height: 7px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 5.5px;
-  left: 5.5px;
+    content: "";
+    width: 7px;
+    height: 7px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 5.5px;
+    left: 5.5px;
 }
 
 /* Hover — quadrado com borda e fundo suave */
 .client-location:hover {
-  cursor: pointer;
-  background: #111; /* leve escurecida */
-  box-shadow:
-    0 0 0 6px rgba(150,150,150,0.15), /* fundo quadrado suave */
-    0 0 6px rgba(0,0,0,0.3);          /* leve glow preto */
+    cursor: pointer;
+    background: #111;
+    /* leve escurecida */
+    box-shadow:
+        0 0 0 6px rgba(150, 150, 150, 0.15),
+        /* fundo quadrado suave */
+        0 0 6px rgba(0, 0, 0, 0.3);
+    /* leve glow preto */
 }
 
 /* Clique — efeito mais forte */
 .client-location:active {
-  transform: rotate(-45deg) scale(0.9);
-  box-shadow:
-    0 0 0 6px rgba(120,120,120,0.25),
-    0 0 10px rgba(0,0,0,0.4);
+    transform: rotate(-45deg) scale(0.9);
+    box-shadow:
+        0 0 0 6px rgba(120, 120, 120, 0.25),
+        0 0 10px rgba(0, 0, 0, 0.4);
 }
 
 
@@ -406,7 +409,7 @@ body {
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
-    z-index: 1000;
+    z-index: 1;
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
@@ -416,8 +419,8 @@ body {
     background: #ffffff;
     border: 1px solid #d9d9d9;
     border-radius: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.875rem;
+    padding: 0.65rem 1.15rem;
+    font-size: 0.775rem;
     font-weight: 500;
     color: #32363a;
     cursor: pointer;
@@ -604,14 +607,14 @@ body {
     justify-content: center;
     z-index: 1000;
     backdrop-filter: blur(4px);
-    padding: 1rem;
+    padding: 0.5rem;
 }
 
 .fiori-modal-content {
     background: white;
     padding: 2rem;
     border-radius: 1rem;
-    width: 90%;
+    width: 95%;
     max-width: 800px;
     max-height: 90vh;
     overflow-y: auto;
@@ -735,7 +738,7 @@ body {
 .remove-selected-client {
     background: transparent;
     border: none;
-    color: #d9534f;           
+    color: #d9534f;
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
@@ -756,7 +759,7 @@ body {
     bottom: 110%;
     left: 50%;
     transform: translateX(-50%);
-    
+
     background: #2b2b2b;
     color: #fff;
     padding: 4px 8px;
@@ -783,9 +786,17 @@ body {
 }
 
 @keyframes fadeTooltip {
-    from { opacity: 0; transform: translateX(-50%) translateY(2px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(2px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
+
 .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -829,8 +840,8 @@ body {
     background: white;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    padding: 16px;
-    z-index: 1000;
+    padding: 17px;
+    z-index: 1;
     max-width: 300px;
     font-family: '72', Arial, sans-serif;
 }
@@ -1087,12 +1098,11 @@ textarea:focus {
     color: #6a6d70;
     margin-bottom: 4px;
 }
+
 .filter-btn {
     background: #ffffff;
     color: #0a6ed1;
     border: 1px solid #cdd5df;
-    padding: 0.42rem 1rem;
-    font-size: 13px;
     font-weight: 500;
     border-radius: 6px;
     cursor: pointer;
@@ -1210,11 +1220,11 @@ textarea:focus {
 /* Tablets e telas médias */
 @media (max-width: 1024px) {
     .sidebar {
-        width: 40%;
+        width: 35%;
     }
 
     #mapContainer {
-        width: 60%;
+        width: 65%;
     }
 
     .filters-grid {
@@ -1229,282 +1239,286 @@ textarea:focus {
     }
 }
 
-/* Smartphones e telas pequenas */
 @media (max-width: 768px) {
-    .container {
+
+
+
+    .action-bar {
         flex-direction: column;
     }
 
-    .sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 50vh;
-        min-height: 300px;
-        border-right: none;
-        border-bottom: 1px solid #d9d9d9;
-    }
-
-    .sidebar-header {
-        padding: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .header-icon {
-        width: 1.75rem;
-        height: 1.75rem;
-        font-size: 0.875rem;
-    }
-
-    .header-title {
-        font-size: 1rem;
-    }
-
-    .header-info {
-        font-size: 0.6875rem;
-        padding: 0.3rem 0.6rem;
-    }
-
-    .sidebar-content {
-        padding: 1rem;
-    }
-
-    .client-item {
-        padding: 1rem;
-        min-height: auto;
-    }
-
-    .client-name {
-        font-size: 0.7525rem;
-    }
-
-    .client-address {
-        font-size: 0.6875rem;
-        margin-left: 1.75rem;
-    }
-
-   
-
-    #mapContainer {
-        width: 100%;
-        height: 50vh;
-        min-height: 300px;
-    }
-
-    .action-bar {
-        top: 1rem;
-        right: 1rem;
-        left: 1rem;
-        gap: 0.5rem;
-    }
-
     .fiori-button {
-        padding: 0.625rem 1rem;
-        font-size: 0.8125rem;
-        flex: 1 1 auto;
-        min-width: 100px;
-        white-space: nowrap;
+        padding: 0.55rem 1.05rem;
+        font-size: 0.75rem;
+        gap: 0.1rem;
     }
 
-    .route-info {
-        bottom: 1rem;
-        left: 1rem;
-        right: 1rem;
-        padding: 1rem;
-    }
-
-    .route-info-title {
-        font-size: 0.9375rem;
-    }
-
-    .route-stats {
-        gap: 1rem;
-    }
-
-    .route-stat {
-        min-width: 100px;
-    }
-
-    .route-stat-value {
-        font-size: 1.125rem;
-    }
-
-    .filters-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .filters-panel {
-        padding: 1rem;
+    .action-buttons {
+        flex-direction: column-reverse;
     }
 
     .polygon-instructions,
     .polygon-actions {
-        position: fixed;
-        top: auto;
-        bottom: 20px;
-        left: 20px;
+        top: 15px;
         right: 20px;
-        max-width: none;
+
     }
 
-    .instruction-buttons,
-    .action-buttons {
-        flex-direction: column;
+    .instruction-content h4,
+    .action-content h4 {
+        margin: 0 0 12px 0;
+        color: #32363a;
+        font-size: 12px;
+        font-weight: 600;
     }
 
-    .instruction-buttons .fiori-button,
-    .action-buttons .fiori-button {
-        min-width: auto;
-    }
-
-    .fiori-modal-content {
-        padding: 1.5rem;
-    }
-
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .modal-header h2 {
-        font-size: 1.25rem;
-    }
-}
-
-/* Telas muito pequenas */
-@media (max-width: 480px) {
-    .sidebar-header {
-        padding: 0.75rem;
-    }
-
-    .header-content {
-        gap: 0.375rem;
-    }
-
-    .header-title {
-        font-size: 0.9375rem;
-    }
-
-    .header-info {
-        font-size: 0.625rem;
-        padding: 0.25rem 0.5rem;
-    }
-
-    .sidebar-content {
-        padding: 0.75rem;
-    }
-
-    .client-item {
-        padding: 0.875rem;
-    }
-
-    .client-header {
-        gap: 0.5rem;
-    }
-
-    .client-name {
-        font-size: 0.75rem;
-    }
-
-    .client-address {
-        font-size: 0.625rem;
-        margin-left: 1.5rem;
-    }
-
-
-
-    .client-checkbox {
-        width: 1rem;
-        height: 1rem;
-    }
-
-    .action-bar {
-        gap: 0.375rem;
-        flex-direction: column;
-    }
-
-    .fiori-button {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.75rem;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .route-info {
-        padding: 0.875rem;
-    }
-
-    .route-info-title {
-        font-size: 0.875rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .route-stats {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .route-stat-label {
-        font-size: 0.6875rem;
-    }
-
-    .route-stat-value {
-        font-size: 1rem;
-    }
-
-    .filters-panel {
-        padding: 0.75rem;
-    }
-
-    .filter-field label {
-        font-size: 11px;
-    }
-
-    .filter-field input,
-    .filter-field select {
-        padding: 6px 8px;
-        font-size: 13px;
-    }
-
-    #toggleFiltersBtn {
-        font-size: 0.8125rem;
-        padding: 6px 10px;
-    }
-
-    .fiori-modal {
-        padding: 0.5rem;
+    .instruction-content p {
+        margin: 6px 0;
+        color: #6a6d70;
+        font-size: 10x;
+        line-height: 1;
     }
 
     .fiori-modal-content {
-        padding: 1rem;
+        width: 99%;
+        height: 99%;
     }
 
-    .modal-header h2 {
-        font-size: 1.125rem;
+
+    .fiori-table th,
+    .fiori-table td {
+        font-size: 0.775rem;
+    }
+
+    .createRouteCustomerAddress {
+        display: none;
+    }
+
+    .officesTableID {
+        display: none;
+    }
+
+
+    .form-field {
+        font-size: 0.78rem;
+    }
+
+    .form-field input {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .form-field label {
-        font-size: 0.75rem;
+        font-size: 0.78rem;
     }
 
     .form-field input,
     .form-field select,
     textarea {
-        padding: 0.5rem;
-        font-size: 0.875rem;
+        font-size: 0.78rem;
+        
+
     }
 
-    .btn-secondary,
-    .btn-primary {
-        padding: 0.6rem 1rem;
-        font-size: 0.875rem;
+    .action-bar .fiori-button,
+    .action-bar .btn-primary {
+        font-size: 0.75rem;
     }
 
-    .modal-footer {
-        flex-direction: column;
-        gap: 0.5rem;
+
+    /*    .polygon-instructions,
+    .polygon-actions {
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 12px;
+        z-index: 1;
+        max-width: 300px;
+        font-family: '72', Arial, sans-serif;
+    } */
+
+
+    .client-item {
+        padding: 1.05rem;
+        min-height: 80px;
     }
 
-    .modal-footer button {
+    /* Sidebar: começa colapsada por padrão no mobile */
+    .sidebar {
+
+        position: fixed;
+        /* 👈 essencial */
+        top: 0;
+        left: 0;
         width: 100%;
+        height: 100%;
+
+        transform: translateX(-100%);
+        pointer-events: none;
+        border-right: none;
+    }
+
+    /* Quando aberta como bottom sheet */
+    .sidebar.mobile-open {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        transform: translateX(0);
+        pointer-events: auto;
+        z-index: 400;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Overlay escuro atrás do bottom sheet */
+    .sidebar.mobile-open::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(135deg, #1264b6d7 0%, #1166bb 100%);
+        z-index: -1;
+    }
+
+    /* Mapa ocupa tela toda */
+    #mapContainer {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    /* Controles colapsados: posição no mobile — canto inferior esquerdo, horizontal */
+    #sidebarCollapsedControls {
+        position: absolute;
+        bottom: 24px;
+        left: 16px;
+        top: auto;
+        /* cancela o top: 1rem do desktop */
+        flex-direction: column;
+        gap: 10px;
+        z-index: 200;
+    }
+
+    #sidebarCollapsedControls button {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: none;
+        background: #ffffff;
+        color: #32363a;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+
+    #sidebarCollapsedControls button:hover {
+        border-color: #0a6ed1;
+        color: #0a6ed1;
+        box-shadow: 0 6px 20px rgba(10, 110, 209, 0.25);
+        transform: translateY(-2px);
+    }
+
+    /* Botão ▶ principal: azul, maior destaque */
+    #sidebarCollapsedControls #btnExpandSidebar {
+        background: linear-gradient(135deg, #0a6ed1 0%, #0854a0 100%);
+        color: white;
+        width: 52px;
+        height: 52px;
+        font-size: 14px;
+    }
+
+    #sidebarCollapsedControls #btnExpandSidebar:hover {
+        background: linear-gradient(135deg, #085cad 0%, #063d7a 100%);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Sidebar header vira topo do bottom sheet */
+    .sidebar-header {
+        border-radius: 20px 20px 0 0;
+        padding: 10px 16px 14px;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Handle de drag no topo */
+    .sidebar-header::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: linear-gradient(135deg, #0a6ed1 0%, #0854a0 100%);
+        border-radius: 2px;
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* Botão de fechar (◀) vira ✕ no mobile */
+    #sidebarToggle {
+        position: static;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 42px;
+        height: 42px;
+        order: 99;
+        margin-left: auto;
+    }
+
+    .sidebar.collapsed #sidebarToggle {
+        display: flex;
+    }
+
+    .toggle-icon {
+        transform: none !important;
+        /* cancela a rotação do estado collapsed */
+    }
+
+    /* Filtros em 2 colunas */
+    .filters-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .filters-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    #toggleFiltersBtn {
+        grid-column: 1 / -1;
+    }
+
+    /* Lista de clientes: 1 coluna */
+    .clients-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 390px) {
+
+    .action-bar .fiori-button,
+    .action-bar .btn-primary {
+        padding: 8px 11px;
+        font-size: 11px;
+    }
+
+    .filters-grid {
+        grid-template-columns: 1fr;
     }
 }

@@ -122,15 +122,22 @@
 /* === RESPONSIVO === */
 /* Tablet */
 @media (max-width: 1024px) {
-  .sap-modal-container { width: 90%; max-width: 700px; }
+  .sap-modal-container { width: 78%; max-width: 700px; }
   .sap-modal-content { max-height: 380px; }
   .sap-table th, .sap-table td { padding: 6px 10px; font-size: 13px; }
 }
 
+
+@media (max-width: 768px) {
+ .sap-modal-container { width: 80%; max-width: 700px; }
+  .sap-modal-content { max-height: 80vh; }
+  .sap-table th, .sap-table td { padding: 3px 8px; font-size: 10px; }
+  
+}
 /* Mobile */
 @media (max-width: 480px) {
-  .sap-modal-container { width: 95%; max-width: 95%; border-radius: 10px; }
-  .sap-modal-content { max-height: 250px; padding: 12px 14px; }
+  .sap-modal-container { width: 90%; max-width: 95%; border-radius: 10px; }
+  .sap-modal-content { max-height: 70vh; }
   .sap-table th, .sap-table td { padding: 5px 8px; font-size: 12px; }
   .sap-modal-footer { flex-direction: column; gap: 6px; }
   .sap-btn { width: 100%; min-width: auto; }

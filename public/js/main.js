@@ -19,34 +19,17 @@ import { deselectAllCustomers, getSelectedClients } from './customers.js';
 import { closeOfficesModal, getSelectedOffices, openOfficesModal } from './modal-offices.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+
   setupFiltersToggle();
-
-  await initApp()
-
-  await getSalesOffices().then((salesOffices) => {
-    const btnOffices = document.getElementById("btnOffices");
-
-    if (!salesOffices.haveOfficesByEmployee) {
-      showToast('Nenhum escritório vinculado ao usuário, por favor selecione e tente novamente.', 'error', 5000);
-    }
-
-    btnOffices.textContent = salesOffices.haveOfficesByEmployee
-      ? "Ver Escritórios"
-      : "Selecionar Escritórios";
-
-    btnOffices.onclick = () => openOfficesModal(salesOffices.haveOfficesByEmployee, salesOffices.offices);
-
-  }).catch((error) => {
-    console.log('error', error)
-  });
-
-  await loadCustomers().then(() => {
-    renderCustomers()
-  });
 
   document.getElementById('sidebarToggle').addEventListener('click', function () {
     const sidebar = document.querySelector('.sidebar');
     const map = document.getElementById('mapContainer');
+
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove('mobile-open');
+      return;
+    }
 
     sidebar.classList.toggle('collapsed');
     map.classList.toggle('expanded');
@@ -68,6 +51,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         panel.remove();
         setTimeout(() => state.map?.getViewPort()?.resize(), 350);
       });
+
+      if (window.innerWidth <= 768) {
+        document.getElementById('btnExpandSidebar').addEventListener('click', () => {
+          sidebar.classList.add('mobile-open');
+        });
+      }
 
       document.getElementById('btnShowAll').addEventListener('click', () => {
         if (state.showOnlySelected) {
@@ -92,6 +81,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => state.map?.getViewPort()?.resize(), 350);
   });
 
+  if (window.innerWidth <= 768) {
+    const sidebar = document.querySelector('.sidebar');
+    const map = document.getElementById('mapContainer');
+    sidebar.classList.add('collapsed');
+    map.classList.add('expanded');
+
+    const panel = document.createElement('div');
+    panel.id = 'sidebarCollapsedControls';
+    panel.innerHTML = `
+    <button id="btnShowAll" title="Clientes do escritório">🏢</button>
+    <button id="btnShowSelected" title="Clientes selecionados">✓</button>
+    <button id="btnExpandSidebar" title="Mostrar painel">▶</button>
+  `;
+    map.appendChild(panel);
+
+    document.getElementById('btnExpandSidebar').addEventListener('click', () => {
+      sidebar.classList.add('mobile-open');
+    });
+
+    document.getElementById('btnShowAll').addEventListener('click', () => {
+      if (state.showOnlySelected) {
+        showToast('Mostrando clientes do escritório.', 'success');
+        toggleShowSelected(state);
+        document.getElementById('btnToggleSelected').textContent = 'Clientes Selecionados';
+      }
+    });
+
+    document.getElementById('btnShowSelected').addEventListener('click', () => {
+      if (!state.showOnlySelected) {
+        showToast('Mostrando clientes selecionados.', 'success');
+        toggleShowSelected(state);
+        document.getElementById('btnToggleSelected').textContent = 'Clientes do escritório';
+      }
+    });
+  }
+
+  await initApp()
+
+  await getSalesOffices().then((salesOffices) => {
+    const btnOffices = document.getElementById("btnOffices");
+
+    if (!salesOffices.haveOfficesByEmployee) {
+      showToast('Nenhum escritório vinculado ao usuário, por favor selecione e tente novamente.', 'error', 5000);
+    }
+
+    btnOffices.textContent = salesOffices.haveOfficesByEmployee
+      ? "Ver Escritórios"
+      : "Selecionar Escritórios";
+
+    btnOffices.onclick = () => openOfficesModal(salesOffices.haveOfficesByEmployee, salesOffices.offices);
+
+  }).catch((error) => {
+    console.log('error', error)
+  });
+
+  await loadCustomers().then(() => {
+    renderCustomers()
+  });
 
   document.getElementById('btnClearRoute')?.addEventListener('click', () => clearRoute(state));
   document.getElementById('btnOpenFormRoute')?.addEventListener('click', () => {

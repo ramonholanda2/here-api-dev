@@ -34,7 +34,7 @@ export async function openFormRoute(state) {
 
   customers.forEach(customer => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${customer.CustomerInternalID}</td><td>${customer.CustomerName}</td><td>${customer.FormattedPostalAddressDescription}</td><td class="remove-cell"><button class="remove-selected-client" data-id="${customer.CustomerInternalID}">✕</button></td>`;
+    tr.innerHTML = `<td>${customer.CustomerInternalID}</td><td>${customer.CustomerName}</td><td class="createRouteCustomerAddress">${customer.FormattedPostalAddressDescription}</td><td class="remove-cell"><button class="remove-selected-client" data-id="${customer.CustomerInternalID}">✕</button></td>`;
     tbody.appendChild(tr);
   });
 
@@ -137,12 +137,12 @@ export async function saveRoute(state) {
       .then(async (route) => {
 
         const timeMessageMS = 4000;
-        showToast('Rota criada com sucesso, estamos redirecionando para o CRM.', 'success', timeMessageMS);
+        showToast('Rota criada com sucesso.', 'success', timeMessageMS);
 
         const url = `/api/rotas/redirecionar/${route.data.ObjectID}`;
         const response = await axios.get(url);
         const linkRouteCreated = decodeURIComponent(response.data);
-        window.location.href = linkRouteCreated;
+        window.top.location.href = linkRouteCreated;
 
       })
 
