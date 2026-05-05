@@ -1259,9 +1259,9 @@ textarea:focus {
 
     .polygon-instructions,
     .polygon-actions {
-        top: 15px;
+        top: 78vh;
         right: 20px;
-
+        z-index: 2;
     }
 
     .instruction-content h4,

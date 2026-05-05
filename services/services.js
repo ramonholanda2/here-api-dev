@@ -33,7 +33,6 @@ async function getCustomers(queryOptions) {
 
     if (queryOptions.employeeID) {
       const orgUnitIds = await findOrganisationalUnitEmployees(queryOptions.employeeID);
-
       if (!orgUnitIds.length) {
         return { erro: true, mensagem: `Nenhuma Sales Office encontrada para o empregado ${queryOptions.employeeID}.` };
       }
@@ -43,7 +42,6 @@ async function getCustomers(queryOptions) {
 
     if (queryOptions.salesOfficesIDs) {
       const orgUnitIds = queryOptions.salesOfficesIDs.split(',');
-      console.log('orgUnitIds', orgUnitIds);
       customers = await findCustomersBySalesOffice(orgUnitIds);
     }
 
@@ -95,7 +93,6 @@ async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesID
     const response = await executeHttpRequest(destination, { method: "GET", url });
 
     const results = response?.data?.d?.results || [];
-    console.log('findOrganisationalUnitEmployees', results);
 
     if (onlyAndNamesIDs) {
       const uniqueMap = new Map();
@@ -104,7 +101,9 @@ async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesID
           if (!uniqueMap.has(office.OrgUnitID)) {
             uniqueMap.set(office.OrgUnitID, {
               OrgUnitID: office.OrgUnitID,
-              Name: office.Name
+              Name: office.Name,
+              SalesGroupIndicator: office.SalesGroupIndicator,
+              SalesOfficeIndicator: office.SalesOfficeIndicator
             });
           }
         }
@@ -112,15 +111,15 @@ async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesID
 
       return Array.from(uniqueMap.values());
     }
-
     const ids = Array.from(
-      new Set(
+      new Map(
         results
-          .map(r => r.OrgUnitID)
-          .filter(Boolean)
-      )
+          .filter(r => r?.OrgUnitID)
+          .map(r => [r.OrgUnitID, r])
+      ).values()
     );
 
+    console.log("ids", ids)
     return ids;
 
   } catch (err) {
@@ -129,13 +128,111 @@ async function findOrganisationalUnitEmployees(businessPartnerId, onlyAndNamesID
   }
 }
 
+
 async function findCustomersBySalesOffice(orgUnitIds = []) {
+  console.log("orgunit ids: ", orgUnitIds);
+  if (!orgUnitIds.length) return [];
+
+  const base = process.env.CUSTOMER_ODATA_PATH;
+  if (!base) return [];
+
+  const salesOffices = [];
+  const salesGroups = [];
+
+  if (typeof orgUnitIds[0] === 'object') {
+    for (const item of orgUnitIds) {
+      if (item.SalesOfficeIndicator) salesOffices.push(item.OrgUnitID);
+      if (item.SalesGroupIndicator) salesGroups.push(item.OrgUnitID);
+    }
+  }
+
+  if (typeof orgUnitIds[0] === 'string') {
+    salesOffices.push(...orgUnitIds);
+  }
+
+  const [officeResults, groupResults] = await Promise.all([
+    salesOffices.length ? queryByField(base, 'CSALES_OFFICE_UUID', salesOffices) : [],
+    salesGroups.length  ? queryByField(base, 'CSALES_GROUP_UUID',  salesGroups)  : [],
+  ]);
+
+  // ─── Merge ─────────────────────────────
+  const byCustomer = new Map();
+
+  for (const item of [...officeResults, ...groupResults]) {
+    const key = item.CustomerInternalID;
+    if (!key) continue;
+
+    if (!byCustomer.has(key)) {
+      byCustomer.set(key, {
+        ...item,
+        salesOffices: item.SalesOfficeID ? [item.SalesOfficeID] : []
+      });
+    } else {
+      const acc = byCustomer.get(key);
+      if (item.SalesOfficeID && !acc.salesOffices.includes(item.SalesOfficeID)) {
+        acc.salesOffices.push(item.SalesOfficeID);
+      }
+    }
+  }
+
+  return Array.from(byCustomer.values());
+}
+
+async function queryByField(base, field, ids) {
+  try {
+    const filter = ids
+      .map(id => `${field} eq '${String(id).replace(/'/g, "''")}'`)
+      .join(' or ');
+
+    const url = `${base}?$format=json&$filter=${encodeURI(filter)}&$top=99999`;
+    console.log(`[queryByField] ${field}:`, url);
+
+    const destination = await getDestination({ destinationName: "SALES_CLOUD" });
+    const response = await executeHttpRequest(destination, { method: "GET", url });
+
+    const payload = response?.data?.d?.results || [];
+
+    const withLocation = payload.filter(
+      item =>
+        Number.parseFloat(item.CLATITUDE_MEASURE) !== 0.0 &&
+        Number.parseFloat(item.CLONGITUDE_MEASURE) !== 0.0
+    );
+
+    return mapResponsePayload(withLocation);
+
+  } catch (err) {
+    console.error(`[queryByField] ${field} error:`, err?.response?.data || err);
+    return [];
+  }
+}
+
+/* 
+async function findCustomersBySalesOffice(orgUnitIds = []) {
+
+  console.log("orgunit ids: ", orgUnitIds)
 
   if (!orgUnitIds.length) return [];
 
   const base = process.env.CUSTOMER_ODATA_PATH;
   if (!base) return [];
 
+  const salesOffices = [];
+  const salesGroups = [];
+  if (typeof orgUnitIds[0] === 'object') {
+    for (const item of orgUnitIds) {
+      if (item.SalesOfficeIndicator) {
+        salesOffices.push(item);
+      }
+
+      if (item.SalesGroupIndicator) {
+        salesGroups.push(item);
+      }
+    }
+  }
+
+  if (typeof orgUnitIds[0] === 'string') {
+
+  }
   const filterOrgQuery = orgUnitIds
     .map(id => `CSALES_OFFICE_UUID eq '${String(id).replace(/'/g, "''")}'`)
     .join(' or ');
@@ -184,7 +281,7 @@ async function findCustomersBySalesOffice(orgUnitIds = []) {
     console.error('findCustomersBySalesOffice error:', err?.response?.data || err);
     return [];
   }
-}
+} */
 
 
 function mapResponsePayload(results) {
