@@ -3,7 +3,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const cors = require('cors');
-const { getCustomers, getEmployeeInfo, createRoute, getRedirectUrl, getSalesOffices, getRedirectSalesCloudURL, getAllEmployees } = require('./services/services');
+const { getCustomers, getEmployeeInfo, createRoute, getRedirectUrl, getSalesOffices, getRedirectSalesCloudURL, getAllEmployees, getRolesByEmployee } = require('./services/services');
 
 const hasVcap = !!process.env.VCAP_SERVICES;
 console.log("Is Env CF: ", hasVcap)
@@ -50,10 +50,20 @@ app.get('/api/rotas/redirecionar/:routeUUID', async (req, res, next) => {
   }
 });
 
-app.get('/api/empregados' , async (req, res, next) => {
+app.get('/api/empregados', async (req, res, next) => {
   try {
     const employees = await getAllEmployees();
     return res.json(employees);
+  } catch (error) {
+    next(error);
+  }
+})
+
+app.get("/api/funcoes/:employeeID", async (req, res, next) => {
+  try {
+    const employeeID = req.params.employeeID;
+    const roles = await getRolesByEmployee(employeeID);
+    return res.json(roles);
   } catch (error) {
     next(error);
   }

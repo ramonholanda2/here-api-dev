@@ -26,6 +26,33 @@ async function getEmployeeInfo(employeeID) {
   }
 }
 
+async function getRolesByEmployee(employeeID) {
+  try {
+    const destination = await getDestination({
+      destinationName: "SALES_CLOUD"
+    });
+
+    const response = await executeHttpRequest(destination, {
+      method: "GET",
+      url:
+        `/sap/c4c/odata/v1/c4codataapi/BusinessUserCollection` +
+        `?$filter=EmployeeID eq '${employeeID}'` +
+        `&$expand=BusinessUserBusinessRoleAssignment` +
+        `&$select=BusinessUserBusinessRoleAssignment/BusinessRoleID` +
+        `&$format=json`
+    });
+
+    return response.data.d.results || [];
+
+  } catch (error) {
+    console.error(error);
+
+    throw new Error(
+      `Erro ao obter funções do empregado ${employeeID}`
+    );
+  }
+}
+
 async function getCustomers(queryOptions) {
   console.log('queryOptions', queryOptions);
   try {
@@ -365,13 +392,14 @@ async function getRedirectSalesCloudURL() {
 
 async function getAllEmployees() {
 
-  const url = `/sap/c4c/odata/v1/c4codataapi/EmployeeCollection?$select=EmployeeID,BusinessPartnerFormattedName&$format=json`;
+  const url = `/sap/c4c/odata/v1/c4codataapi/EmployeeCollection?$expand=EmployeeUserBusinessRoleAssignment&$select=EmployeeID,BusinessPartnerFormattedName,EmployeeUserBusinessRoleAssignment/BusinessRoleID&$format=json&$top=9999`;
   const destination = await getDestination({ destinationName: "SALES_CLOUD" });
   const response = await executeHttpRequest(
     destination,
     { method: "GET", url: url }
   );
   const employees = response?.data?.d?.results || [];
+  console.log(employees)
   return employees
 }
 
@@ -383,5 +411,6 @@ export {
   getRedirectUrl,
   getSalesOffices,
   getRedirectSalesCloudURL,
-  getAllEmployees
+  getAllEmployees,
+  getRolesByEmployee
 }

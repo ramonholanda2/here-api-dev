@@ -325,9 +325,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const { data } = await axios.get("/api/empregados");
 
-      window._allEmployees = data;
 
-      renderEmployeesTable(data);
+      var employeeList = data;
+
+       const isTradeMKT =
+        state.currentUserRoles?.some(
+          role =>
+            role.BusinessRoleID === "TRADE_MARKETING"
+        )
+      
+      if(isTradeMKT) {
+        const tradePromotors = data.filter(employee =>
+          employee.EmployeeUserBusinessRoleAssignment?.some(
+            role => role.BusinessRoleID === "PROMOTOR_TRADE"
+          )
+        );
+
+        employeeList = tradePromotors
+      }
+
+      window._allEmployees = employeeList;
+
+
+      renderEmployeesTable(employeeList);
 
     } catch (e) {
       console.log(e);

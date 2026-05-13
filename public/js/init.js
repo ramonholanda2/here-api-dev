@@ -1,7 +1,5 @@
 // public/js/init.js
 import { apiKey, state } from './config.js';
-import { renderCustomers } from './filters.js';
-import { showToast } from './util.js';
 
 export async function getSalesOffices() {
   const params = new URLSearchParams(window.location.search);
@@ -20,6 +18,9 @@ export async function loadCustomers(parameters) {
 
     const params = new URLSearchParams(window.location.search);
     const employeeID = params.get('employeeID');
+
+    const { data: roles } = await axios.get(`/api/funcoes/${employeeID}`);
+    state.currentUserRoles = roles[0]?.BusinessUserBusinessRoleAssignment;
 
     let url = `/api/clientes`;
 

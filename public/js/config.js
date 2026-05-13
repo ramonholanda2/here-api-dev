@@ -14,6 +14,7 @@ export const state = {
   salesCloudURL: null,
   allCustomers: [],
   selectedCustomers: new Map(),
+  currentUserRoles: [],
   showOnlySelected: false,
   isShowPolygonActions: false,
   map: null,

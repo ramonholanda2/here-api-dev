@@ -5,8 +5,13 @@ import { showToast } from './util.js';
 
 export async function openFormRoute(state) {
   const customers = getSelectedClients(state);
+
   if (customers.length === 0) {
-    showToast('Selecione pelo menos um cliente para criar uma rota.', 'error', 5000);
+    showToast(
+      'Selecione pelo menos um cliente para criar uma rota.',
+      'error',
+      5000
+    );
     return;
   }
 
@@ -14,31 +19,84 @@ export async function openFormRoute(state) {
 
   const params = new URLSearchParams(window.location.search);
   const employeeID = params.get("employeeID");
-  const { data } = await axios.get(`/api/empregado?employeeID=${employeeID}`);
+
+  const { data } = await axios.get(
+    `/api/empregado?employeeID=${employeeID}`
+  );
 
   const organizerInput = document.getElementById('routeOrganizer');
+  const routeOwnerInput = document.getElementById("routeOwner");
 
-  document.getElementById("routeOwner").dataset.id = data?.EmployeeID;
-  document.getElementById("routeOwnerName").textContent = data?.name;
+  routeOwnerInput.dataset.id = data?.EmployeeID;
 
+  document.getElementById("routeOwnerName").textContent =
+    data?.name;
 
   organizerInput.value = data?.name || '';
 
+  const isSupervisor =
+    state.currentUserRoles?.some(
+      role =>
+        role.BusinessRoleID === "SUPERVISOR_COMERCIAL"
+    )
+  const isTradeMarketing = state.currentUserRoles?.some(
+      role =>
+        role.BusinessRoleID === "TRADE_MARKETING"
+    )
+
+  if (isSupervisor) {
+    const routeOwnerInput = document.getElementById("routeOwner");
+    routeOwnerInput.setAttribute("disabled", true);
+    routeOwnerInput.style.pointerEvents = "none";
+
+    const typeVisit = document.getElementById('routeTypeVisit')
+    typeVisit.value = "Z01";
+    typeVisit.classList.remove("field-error")
+  } else {
+    routeOwnerInput.style.pointerEvents = "auto";
+    routeOwnerInput.style.opacity = "1";
+    routeOwnerInput.style.cursor = "pointer";
+  }
+
+  if(isTradeMarketing) {
+    const typeVisit = document.getElementById('routeTypeVisit')
+    typeVisit.value = "Z08";
+    typeVisit.classList.remove("field-error")
+    typeVisit.setAttribute("disabled", true);
+    typeVisit.style.pointerEvents = "none";
+  }
+
   const tableTitle = document.getElementById('section-title');
+
   if (tableTitle) {
-    tableTitle.innerHTML = `(${customers.length}) Clientes selecionados`;
+    tableTitle.innerHTML =
+      `(${customers.length}) Clientes selecionados`;
   }
 
   const tbody = document.querySelector("#tableCustomers tbody");
+
   tbody.innerHTML = "";
 
   customers.forEach(customer => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${customer.CustomerInternalID}</td><td>${customer.CustomerName}</td><td class="createRouteCustomerAddress">${customer.FormattedPostalAddressDescription}</td><td class="remove-cell"><button class="remove-selected-client" data-id="${customer.CustomerInternalID}">✕</button></td>`;
+
+    tr.innerHTML = `
+      <td>${customer.CustomerInternalID}</td>
+      <td>${customer.CustomerName}</td>
+      <td class="createRouteCustomerAddress">
+        ${customer.FormattedPostalAddressDescription}
+      </td>
+      <td class="remove-cell">
+        <button
+          class="remove-selected-client"
+          data-id="${customer.CustomerInternalID}">
+          ✕
+        </button>
+      </td>
+    `;
+
     tbody.appendChild(tr);
   });
-
-
 }
 export function renderEmployeesTable(list) {
   const tbody = document.querySelector("#employeesTable tbody");
@@ -119,7 +177,7 @@ export async function saveRoute(state) {
     DefaultStartTime: "PT08H00M00S",
     DefaultPreparationTime: "PT1H",
     DefaultDuration: "PT1H",
-    Status: "1",
+    Status: "2",
     ProcessingStatus: "1",
     VisitTypeCode: typeVisit.value,
     OwnerPartyID: ownerID,
